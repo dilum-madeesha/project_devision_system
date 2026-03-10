@@ -1,0 +1,361 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  username        String   @unique
+  email           String   @unique
+  epfNumber       Int      @unique 
+  password        String
+  firstName       String
+  lastName        String
+  division        String
+  role            UserRole @default(WORKER)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLogin       DateTime?
+  privilege       Int      @default(5)
+
+  // Relations
+  createdJobs            Job[]              @relation("JobCreator")
+  createdDailyLaborCosts DailyLaborCost[]  @relation("DailyLaborCostCreator")
+  updatedDailyLaborCosts DailyLaborCost[]  @relation("DailyLaborCostUpdater")
+  createdMaterialOrders  MaterialOrder[]   @relation("MaterialOrderCreator")
+  updatedMaterialOrders  MaterialOrder[]   @relation("MaterialOrderUpdater")
+  createdMaterials       Material[]        @relation("MaterialCreator")
+  updatedMaterials       Material[]        @relation("MaterialUpdater")
+  
+  @@map("users")
+}
+
+model Job {
+  id             Int      @id @default(autoincrement())
+  jobNumber      String   @unique
+  title          String
+  description    String?
+  status         JobStatus @default(ONGOING)
+  startDate      DateTime
+  endDate        DateTime?
+  reqDepartment  String
+  reqDate        DateTime
+  projectCode    String
+  budgetAllocation Float?
+  assignOfficer  String
+  createdById    Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+
+  // Relations
+  createdBy        User             @relation("JobCreator", fields: [createdById], references: [id])
+  dailyLaborCosts  DailyLaborCost[]
+  materialOrders   MaterialOrder[]
+  
+  @@map("jobs")
+}
+
+model Labor {
+  id          Int      @id @default(autoincrement())
+  epfNumber   Int      @unique
+  firstName   String
+  lastName    String
+  division    String
+  trade       String
+  payGrade    String
+  dayPay      Float
+  otPay       Float
+  weekendPay  Float?   // Optional weekend pay, defaults to dayPay value
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById Int
+
+  // Relations
+  dailyLaborAssignments DailyLaborAssignment[]
+
+  @@map("labors")
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  uom         String   // Unit of Measurement (e.g., kg, m, pieces, etc.)
+  unitPrice   Float
+  createdById Int
+  updatedById Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdBy   User @relation("MaterialCreator", fields: [createdById], references: [id])
+  updatedBy   User @relation("MaterialUpdater", fields: [updatedById], references: [id])
+  materialAssignments MaterialOrderAssignment[]
+
+  @@map("materials")
+}
+
+model DailyLaborCost {
+  id          Int      @id @default(autoincrement())
+  jobId       Int
+  date        DateTime @db.Date
+  cost        Float
+  description String?
+  createdById Int
+  updatedById Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  job         Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdBy   User @relation("DailyLaborCostCreator", fields: [createdById], references: [id])
+  updatedBy   User @relation("DailyLaborCostUpdater", fields: [updatedById], references: [id])
+  laborAssignments DailyLaborAssignment[]
+
+  // Ensure only one labor cost per job per day
+  @@unique([jobId, date])
+  @@map("daily_labor_costs")
+}
+
+model DailyLaborAssignment {
+  id               Int             @id @default(autoincrement())
+  dailyLaborCostId Int
+  laborId          Int
+  timeIn           String          // "morning" (8:30 AM) or "afternoon" (12:30 PM)
+  timeOut          String          // "afternoon" (12:30 PM) or "evening" (4:30 PM)
+  otHours          Float           @default(0)
+  regularHours     Float           @default(0)
+  regularCost      Float           @default(0)
+  otCost           Float           @default(0)
+  hasWeekendPay    Boolean         @default(false) // Whether weekend pay is applied
+  weekendPayCost   Float           @default(0)     // Additional weekend pay cost
+  totalCost        Float           @default(0)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  // Relations
+  dailyLaborCost   DailyLaborCost @relation(fields: [dailyLaborCostId], references: [id], onDelete: Cascade)
+  labor            Labor          @relation(fields: [laborId], references: [id], onDelete: Restrict)
+
+  // Prevent duplicate labor assignments for the same daily labor cost
+  @@unique([dailyLaborCostId, laborId])
+  @@map("daily_labor_assignments")
+}
+
+model MaterialOrder {
+  id          Int              @id @default(autoincrement())
+  jobId       Int
+  date        DateTime         @db.Date
+  type        MaterialOrderType
+  code        String
+  description String?
+  cost        Float
+  createdById Int
+  updatedById Int
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relations
+  job         Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdBy   User @relation("MaterialOrderCreator", fields: [createdById], references: [id])
+  updatedBy   User @relation("MaterialOrderUpdater", fields: [updatedById], references: [id])
+  materialAssignments MaterialOrderAssignment[]
+
+  // Ensure unique code per job per date
+  @@unique([jobId, date, code])
+  @@map("material_orders")
+}
+
+model MaterialOrderAssignment {
+  id              Int            @id @default(autoincrement())
+  materialOrderId Int
+  materialId      Int
+  quantity        Float          // Number of units ordered
+  unitPrice       Float          // Optional override from Material table if needed
+  totalPrice      Float          // quantity * unitPrice (can be calculated or stored)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Relations
+  materialOrder   MaterialOrder @relation(fields: [materialOrderId], references: [id], onDelete: Cascade)
+  material        Material      @relation(fields: [materialId], references: [id], onDelete: Restrict)
+
+  // Prevent duplicate material assignments for the same material order
+  @@unique([materialOrderId, materialId])
+  @@map("material_order_assignments")
+}
+
+enum UserRole {
+  ADMIN              // Full system access
+  MANAGER            // Can manage jobs, view all reports
+  SUPERVISOR         // Can manage assigned jobs, view limited reports  
+  WORKER             // Can only view and update assigned tasks
+  HEAD               // Department Head
+  DEPUTY_HEAD        // Deputy Head
+  PROJECT_MANAGER    // Project Manager
+  CHIEF_ENGINEER     // Chief Engineer
+  ENGINEER           // Engineer
+  ASSISTANT_ENGINEER // Assistant Engineer
+  TECHNICAL_OFFICER  // Technical Officer
+  SECRETARY          // Secretary
+  TRAINEE            // Trainee
+  OTHER              // Other roles
+}
+
+enum JobStatus {
+  NOT_STARTED
+  ONGOING
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+enum MaterialOrderType {
+  MR     // Material Request
+  PR     // Purchase Request 
+  PO     // Purchase order
+  GRN    // Goods Received Note
+  STORE  // Store Issue
+  OTHER  // Other types
+}
+
+model Contractor {
+  id              Int      @id @default(autoincrement())
+  companyNo       String?  @unique
+  companyName     String
+  contactPerson   String
+  phone           String
+  email           String?
+  address         String?
+  registrationNo  String   @unique
+  specialization  String?
+  experienceYears Int?
+  branches        String?
+  description     String?
+  isActive        Boolean  @default(true)
+  createdById     Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  projects        Project[]
+
+  @@map("contractors")
+}
+
+model Officer {
+  id            Int      @id @default(autoincrement())
+  officerNo     String?  @unique
+  fullName      String
+  email         String   @unique
+  contactNumber String
+  designation   String
+  division      String
+  qualification String?
+  experience    Int      @default(0)
+  status        Boolean  @default(true)
+  createdById   Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  projectAssignments ProjectOfficer[]
+
+  @@map("officers")
+}
+
+model Agreement {
+  id                 Int       @id @default(autoincrement())
+  agreementNo        String    @unique
+  agreementID        String?   @unique
+  projectName        String
+  agreementSum       Float
+  vat                Float?    @default(0)
+  periodDays         Int?
+  awardDate          DateTime?
+  startDate          DateTime?
+  completionDate     DateTime?
+  status             AgreementStatus @default(ACTIVE)
+  description        String?
+  createdById        Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  projects           Project[]
+
+  @@map("agreements")
+}
+
+model Project {
+  id                 Int       @id @default(autoincrement())
+  projectId          String    @unique
+  projectName        String
+  description        String?
+  status             ProjectStatus @default(PLANNING)
+  startDate          DateTime?
+  endDate            DateTime?
+  completedPercent   Int       @default(0)
+  
+  // Image Fields - Stored directly in this table
+  projectImages      Json?     // Array of image objects: [{url: "path", uploadedAt: "2024-01-01"}]
+  
+  // Foreign Keys
+  agreementId        Int?
+  contractorId       Int?
+  createdById        Int?
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  agreement          Agreement?  @relation(fields: [agreementId], references: [id])
+  contractor         Contractor? @relation(fields: [contractorId], references: [id])
+  officerAssignments ProjectOfficer[]
+
+  @@map("projects")
+}
+
+model ProjectOfficer {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  officerId   Int
+  role        OfficerRole
+  assignedAt  DateTime @default(now())
+
+  // Relations
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  officer     Officer  @relation(fields: [officerId], references: [id], onDelete: Restrict)
+
+  // Prevent duplicate officer assignments with same role for the same project
+  @@unique([projectId, officerId, role])
+  @@map("project_officers")
+}
+
+enum AgreementStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  PENDING
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum OfficerRole {
+  ENGINEER
+  TECHNICAL_OFFICER
+  SECRETARY
+}
