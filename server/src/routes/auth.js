@@ -6,6 +6,7 @@ import UserController from '../controllers/userController.js';
 import { authenticate, requirePrivilege, BACKEND_FEATURES } from '../middleware/privilegeAuth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import { verifyToken } from '../utils/auth.js';
+import prisma from '../config/database.js';
 
 // Optional authentication middleware - doesn't fail if no token provided
 const optionalAuthenticate = async (req, res, next) => {
@@ -15,7 +16,29 @@ const optionalAuthenticate = async (req, res, next) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const decoded = verifyToken(token);
-      req.user = decoded;
+
+      // Load full profile from DB so session checks return complete user details.
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          epfNumber: true,
+          firstName: true,
+          lastName: true,
+          division: true,
+          role: true,
+          privilege: true,
+          isActive: true,
+          createdAt: true,
+          lastLogin: true
+        }
+      });
+
+      if (user && user.isActive) {
+        req.user = user;
+      }
     }
     // If no token, just continue without setting req.user
     next();

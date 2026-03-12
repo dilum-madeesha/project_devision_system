@@ -119,17 +119,22 @@ export const AuthProvider = ({ children }) => {
                 });
                 return;
               }
-              
+
               // Update user data with latest from server
               dispatch({
                 type: AUTH_ACTIONS.LOGIN_SUCCESS,
                 payload: { user: response.data, token },
               });
             } else {
-              throw new Error('Failed to validate user status');
+              // validation returned false or no data; not a fatal error
+              console.warn('Could not validate user status, using cached credentials');
+              dispatch({
+                type: AUTH_ACTIONS.LOGIN_SUCCESS,
+                payload: { user: parsedUser, token },
+              });
             }
           } catch (apiError) {
-            console.error('Error checking user status:', apiError);
+            console.warn('Error checking user status:', apiError);
             // Still allow login with cached data if server check fails
             dispatch({
               type: AUTH_ACTIONS.LOGIN_SUCCESS,

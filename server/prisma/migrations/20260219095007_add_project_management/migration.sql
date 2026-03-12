@@ -2,6 +2,7 @@
 CREATE TABLE `contractors` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `companyNo` VARCHAR(191) NULL,
+  -- NOTE: field removed in later schema update; create a new migration to drop this column and its index.
     `companyName` VARCHAR(191) NOT NULL,
     `contactPerson` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,

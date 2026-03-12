@@ -74,7 +74,7 @@ import AddContractor from "./pages/ProjectRegister/Contractors/addContractors.js
 
 import CreateProject from "./pages/createProject/createProject.jsx";
 import CreateNewProject from "./pages/createProject/collectProject/createNewProject.jsx";
-import CreatedProjectList from "./pages/createProject/collectProject/createdProjectList.jsx";
+// import CreatedProjectList from "./pages/createProject/collectProject/createdProjectList.jsx";
 import ProjectList from "./pages/createProject/collectProject/projectList.jsx";
 
 import ProjectReports from "./pages/projectReport/projectReport.jsx";
@@ -110,7 +110,7 @@ function App() {
 			{shouldShowNavbar && selectedSystem === "project" && <ProjectNavbar />}
 
 
-			<Box pt={isAuthenticated ? 4 : 0}>
+			<Box pt={0}>
 				<Routes>
 
 					{/* Public Routes */}

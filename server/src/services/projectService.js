@@ -22,10 +22,23 @@ class ProjectService {
       }
     }
 
+    // separate foreign key ids and build connect objects
+    const {
+      agreementId,
+      contractorId,
+      ...rest
+    } = projectData;
+
+    const relationConnects = {
+      ...(agreementId != null && { agreement: { connect: { id: Number(agreementId) } } }),
+      ...(contractorId != null && { contractor: { connect: { id: Number(contractorId) } } }),
+    };
+
     // Create project with officer assignments
     return prisma.project.create({
       data: {
-        ...projectData,
+        ...rest,
+        ...relationConnects,
         officerAssignments: officerAssignments ? {
           create: officerAssignments.map(assignment => ({
             officerId: assignment.officerId,
@@ -82,15 +95,33 @@ class ProjectService {
       // Update project with new officer assignments
       return tx.project.update({
         where: { id: Number(id) },
-        data: {
-          ...projectData,
-          officerAssignments: officerAssignments ? {
-            create: officerAssignments.map(assignment => ({
-              officerId: assignment.officerId,
-              role: assignment.role
-            }))
-          } : undefined
-        },
+        data: (() => {
+          // break out relation ids again for update
+          const {
+            agreementId,
+            contractorId,
+            ...restUpdate
+          } = projectData;
+
+          const updateData = {
+            ...restUpdate,
+            officerAssignments: officerAssignments ? {
+              create: officerAssignments.map(assignment => ({
+                officerId: assignment.officerId,
+                role: assignment.role
+              }))
+            } : undefined
+          };
+
+          if (agreementId != null) {
+            updateData.agreement = { connect: { id: Number(agreementId) } };
+          }
+          if (contractorId != null) {
+            updateData.contractor = { connect: { id: Number(contractorId) } };
+          }
+
+          return updateData;
+        })(),
         include: {
           agreement: true,
           contractor: true,

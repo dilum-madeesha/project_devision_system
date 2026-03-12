@@ -13,6 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { FiUsers, FiPackage } from "react-icons/fi";
 import { useAuth } from '../../contexts/AuthContext';
+
 import { DisabledAction } from '../../components/PermissionGuard';
 
 const CreateProject = () => {
@@ -26,7 +27,7 @@ const CreateProject = () => {
       description: "Manage daily Project manager and work records",
       icon: FiUsers,
       path: "/createproject/collectProject/list",
-      color: "blue",
+      color: "orange",
       costType: "labor"
     }
     // {

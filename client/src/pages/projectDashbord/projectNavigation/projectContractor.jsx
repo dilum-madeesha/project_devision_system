@@ -122,7 +122,6 @@ export default function ProjectContractor() {
                     <Thead bg="gray.50">
                         <Tr>
                             <Th>#</Th>
-                            <Th>Company No</Th>
                             <Th>Company Name</Th>
                             <Th>Contact Person</Th>
                             <Th>Reg No</Th>
@@ -137,7 +136,6 @@ export default function ProjectContractor() {
                             contractors.map((contractor, idx) => (
                                 <Tr key={contractor.id} _hover={{ bg: "gray.50" }}>
                                     <Td>{idx + 1}</Td>
-                                    <Td fontWeight="medium">{contractor.companyNo || "N/A"}</Td>
                                     <Td>{contractor.companyName}</Td>
                                     <Td>{contractor.contactPerson}</Td>
                                     <Td>{contractor.registrationNo}</Td>

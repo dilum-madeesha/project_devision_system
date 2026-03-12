@@ -228,7 +228,6 @@ enum MaterialOrderType {
 
 model Contractor {
   id              Int      @id @default(autoincrement())
-  companyNo       String?  @unique
   companyName     String
   contactPerson   String
   phone           String
@@ -306,6 +305,8 @@ model Project {
   
   // Image Fields - Stored directly in this table
   projectImages      Json?     // Array of image objects: [{url: "path", uploadedAt: "2024-01-01"}]
+  totalExpense       Float     @default(0)
+  expenseEntries     Json?     @default("[]")
   
   // Foreign Keys
   agreementId        Int?

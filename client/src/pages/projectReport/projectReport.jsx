@@ -327,7 +327,6 @@ export default function ProjectReports() {
 
     const data = contractors.map((c, i) => [
       i + 1,
-      c.companyNo || "N/A",
       c.companyName || "N/A",
       c.contactPerson || "N/A",
       c.registrationNo || "N/A",
@@ -339,7 +338,7 @@ export default function ProjectReports() {
 
     autoTable(doc, {
       startY: 40,
-      head: [["#", "Company No", "Company Name", "Contact Person", "Reg No", "Specialization", "Phone", "Email", "Status"]],
+      head: [["#", "Company Name", "Contact Person", "Reg No", "Specialization", "Phone", "Email", "Status"]],
       body: data,
       theme: "striped",
       headStyles: { fillColor: [217, 83, 79] },
@@ -689,7 +688,6 @@ export default function ProjectReports() {
                   <Thead bg="red.50">
                     <Tr>
                       <Th>No</Th>
-                      <Th>Company No</Th>
                       <Th>Company Name</Th>
                       <Th>Contact Person</Th>
                       <Th>Registration No</Th>
@@ -703,7 +701,6 @@ export default function ProjectReports() {
                     {contractors.map((c, i) => (
                       <Tr key={c.id}>
                         <Td>{i + 1}</Td>
-                        <Td>{c.companyNo || "N/A"}</Td>
                         <Td fontWeight="medium">{c.companyName}</Td>
                         <Td>{c.contactPerson}</Td>
                         <Td>{c.registrationNo}</Td>

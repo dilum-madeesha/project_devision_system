@@ -96,9 +96,8 @@ export default function Projectsum() {
   const attentionProjects = projects.filter((p) => calculateProjectStatus(p) === "Attention").length;
 
   // Calculate financials
-  const totalRevenue = projects.reduce((sum, p) => sum + (parseFloat(p.totalAgreementValue) || 0), 0);
   const totalExpenses = projects.reduce((sum, p) => sum + (parseFloat(p.totalExpense) || 0), 0);
-  const profit = totalRevenue - totalExpenses;
+  // totalRevenue and profit have been removed as per requirements
 
   const cards = [
     { icon: <AiFillCreditCard />, title: "Total Projects", value: totalProjects, color1: "#10b981", color2: "#059669" },
@@ -107,10 +106,9 @@ export default function Projectsum() {
     { icon: <HiOutlineWifi />, title: "Delayed", value: delayedProjects, color1: "#f97316", color2: "#fbbf24" },
   ];
 
+  // financeCards kept for future use; revenue/profit removed
   const financeCards = [
-    { icon: <DollarSign size={24} />, title: "Total Revenue", value: totalRevenue, color1: "#10b981", color2: "#059669" },
     { icon: <DollarSign size={24} />, title: "Total Expenses", value: totalExpenses, color1: "#a855f7", color2: "#ec4899" },
-    { icon: <TrendingUp size={24} />, title: "Profit", value: profit, color1: "#f97316", color2: "#fbbf24" },
   ];
 
   // Chart data for project distribution
@@ -204,9 +202,9 @@ export default function Projectsum() {
       {/* Charts Section */}
       <Grid templateColumns={{ base: "1fr", lg: "repeat(3, 1fr)" }} gap={6} mb={6}>
         <Box gridColumn={{ lg: "span 2" }} bg="white" rounded="2xl" p={6} shadow="md" border="1px" borderColor="gray.100">
-          <Heading size="md" mb={2}>Revenue Overview</Heading>
-          <Text fontSize="sm" color="gray.600" mb={4}>Project revenue and expenses</Text>
-          <RevenueChart />
+          <Heading size="md" mb={2}>Revenue & Expenses by Project</Heading>
+          <Text fontSize="sm" color="gray.600" mb={4}>Each project's revenue (agreement minus expense) and total expense</Text>
+          <RevenueChart projects={projects} />
         </Box>
 
         <Box bg="white" rounded="2xl" p={6} shadow="md" border="1px" borderColor="gray.100">
@@ -231,10 +229,13 @@ export default function Projectsum() {
                     Project Name
                   </th>
                   <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "14px", color: "#718096" }}>
-                    Revenue
+                    Agreement Sum
                   </th>
                   <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "14px", color: "#718096" }}>
                     Expense
+                  </th>
+                  <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "14px", color: "#718096" }}>
+                    Revenue
                   </th>
                   <th style={{ padding: "8px 16px", textAlign: "left", fontSize: "14px", color: "#718096" }}>
                     Status
@@ -253,14 +254,19 @@ export default function Projectsum() {
                       {project.projectName || "Unnamed Project"}
                     </td>
 
-                    {/* Revenue */}
-                    <td style={{ padding: "8px 16px", fontSize: "14px", color: "#38a169", fontWeight: "500" }}>
-                      Rs. {project.revenue || 0}
+                    {/* Agreement Sum */}
+                    <td style={{ padding: "8px 16px", fontSize: "14px", color: "#10b981", fontWeight: "500" }}>
+                      Rs. {(project.agreement?.agreementSum != null ? project.agreement.agreementSum : 0).toLocaleString()}
                     </td>
 
                     {/* Expense */}
                     <td style={{ padding: "8px 16px", fontSize: "14px", color: "#e53e3e", fontWeight: "500" }}>
-                      Rs. {project.expense || 0}
+                      Rs. {(project.totalExpense != null ? project.totalExpense : 0).toLocaleString()}
+                    </td>
+
+                    {/* Revenue (agreement minus expense) */}
+                    <td style={{ padding: "8px 16px", fontSize: "14px", color: "#10b981", fontWeight: "500" }}>
+                      Rs. {((project.agreement?.agreementSum || 0) - (project.totalExpense || 0)).toLocaleString()}
                     </td>
 
                     <td style={{ padding: "8px 16px" }}>

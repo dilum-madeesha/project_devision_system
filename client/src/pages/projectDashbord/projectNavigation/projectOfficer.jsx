@@ -33,6 +33,7 @@ export default function ProjectOfficer() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDesignation, setFilterDesignation] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
 
   const cardBg = useColorModeValue("white", "gray.700");
 
@@ -76,7 +77,9 @@ export default function ProjectOfficer() {
       officer.phone?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDesignation =
       filterDesignation === "All" || officer.designation === filterDesignation;
-    return matchesSearch && matchesDesignation;
+    const matchesStatus =
+      filterStatus === "All" || (filterStatus === "Active" ? officer.status === true : officer.status === false);
+    return matchesSearch && matchesDesignation && matchesStatus;
   });
 
   const getDesignationColor = (designation) => {
@@ -216,6 +219,15 @@ export default function ProjectOfficer() {
             <option value="Technical Officer">Technical Officer</option>
             <option value="Secretary">Secretary</option>
           </Select>
+          <Select
+            maxW="200px"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="All">All Status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </Select>
         </HStack>
       </Box>
 
@@ -270,8 +282,8 @@ export default function ProjectOfficer() {
 
                     {/* Status */}
                     <Td>
-                      <Badge colorScheme={officer.status === "Active" ? "green" : "red"}>
-                        {officer.status || "Inactive"}
+                      <Badge colorScheme={officer.status ? "green" : "red"}>
+                        {officer.status ? "Active" : "Inactive"}
                       </Badge>
                     </Td>
 

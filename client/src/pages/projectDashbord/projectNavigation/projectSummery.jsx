@@ -113,12 +113,14 @@ export default function Projectsummery() {
     const delayedProjects = projects.filter(p => p.calculatedStatus === "Delayed").length;
     const attentionProjects = projects.filter(p => p.calculatedStatus === "Attention").length;
 
-    // Financial calculations from agreements
-    const totalAgreementSum = agreements.reduce((sum, a) => sum + (a.agreementSum || 0), 0);
-    const totalVat = agreements.reduce((sum, a) => sum + (a.vat || 0), 0);
-    const totalRevenue = totalAgreementSum;
-    const totalExpenses = totalAgreementSum * 0.7; // Estimated 70% of agreement as expenses
-    const totalProfit = totalRevenue - totalExpenses;
+    // Financial calculations from project records (expenses only)
+    const totalExpenses = projects.reduce((sum, p) => sum + (parseFloat(p.totalExpense) || 0), 0);
+
+    // Agreement sum from agreement table
+    const totalAgreement = agreements.reduce((sum, a) => sum + (parseFloat(a.agreementSum) || 0), 0);
+
+    // Derive revenue as agreement minus expenses
+    const totalRevenue = totalAgreement - totalExpenses;
 
     // Project overview cycle data (pie chart)
     const projectCycleData = [
@@ -128,20 +130,20 @@ export default function Projectsummery() {
         { name: "Delayed", value: delayedProjects, color: "#ef4444" },
     ].filter(item => item.value > 0);
 
-    // Revenue overview data (monthly)
-    const revenueData = [
-        { month: "Jan", revenue: totalRevenue * 0.08, expenses: totalExpenses * 0.08 },
-        { month: "Feb", revenue: totalRevenue * 0.09, expenses: totalExpenses * 0.09 },
-        { month: "Mar", revenue: totalRevenue * 0.07, expenses: totalExpenses * 0.07 },
-        { month: "Apr", revenue: totalRevenue * 0.1, expenses: totalExpenses * 0.1 },
-        { month: "May", revenue: totalRevenue * 0.08, expenses: totalExpenses * 0.08 },
-        { month: "Jun", revenue: totalRevenue * 0.09, expenses: totalExpenses * 0.09 },
-        { month: "Jul", revenue: totalRevenue * 0.11, expenses: totalExpenses * 0.11 },
-        { month: "Aug", revenue: totalRevenue * 0.1, expenses: totalExpenses * 0.1 },
-        { month: "Sep", revenue: totalRevenue * 0.08, expenses: totalExpenses * 0.08 },
-        { month: "Oct", revenue: totalRevenue * 0.07, expenses: totalExpenses * 0.07 },
-        { month: "Nov", revenue: totalRevenue * 0.06, expenses: totalExpenses * 0.06 },
-        { month: "Dec", revenue: totalRevenue * 0.07, expenses: totalExpenses * 0.07 },
+    // Expense overview data (monthly)
+    const expenseData = [
+        { month: "Jan", expenses: totalExpenses * 0.08 },
+        { month: "Feb", expenses: totalExpenses * 0.09 },
+        { month: "Mar", expenses: totalExpenses * 0.07 },
+        { month: "Apr", expenses: totalExpenses * 0.1 },
+        { month: "May", expenses: totalExpenses * 0.08 },
+        { month: "Jun", expenses: totalExpenses * 0.09 },
+        { month: "Jul", expenses: totalExpenses * 0.11 },
+        { month: "Aug", expenses: totalExpenses * 0.1 },
+        { month: "Sep", expenses: totalExpenses * 0.08 },
+        { month: "Oct", expenses: totalExpenses * 0.07 },
+        { month: "Nov", expenses: totalExpenses * 0.06 },
+        { month: "Dec", expenses: totalExpenses * 0.07 },
     ];
 
     // Work steps/activities
@@ -176,9 +178,9 @@ export default function Projectsummery() {
     ];
 
     const financialCards = [
-        { icon: MdAttachMoney, title: "Total Revenue", value: totalRevenue, color: "#10b981", prefix: "Rs." },
-        { icon: AiFillCreditCard, title: "Total Expenses", value: totalExpenses, color: "#f59e0b", prefix: "Rs." },
-        { icon: MdTrendingUp, title: "Total Profit", value: totalProfit, color: "#3b82f6", prefix: "Rs." },
+        { icon: MdAttachMoney, title: "Agreement Sum", value: totalAgreement, color: "#10b981", prefix: "Rs." },
+        { icon: AiFillCreditCard, title: "Total Revenue", value: totalRevenue, color: "#f59e0b", prefix: "Rs." },
+        { icon: MdTrendingUp, title: "Total Expenses", value: totalExpenses, color: "#3b82f6", prefix: "Rs." },
     ];
 
     const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
@@ -254,21 +256,20 @@ export default function Projectsummery() {
                 </Grid>
             </Box>
 
-            {/* ==================== REVENUE OVERVIEW & PROJECT CYCLE ==================== */}
+            {/* ==================== EXPENSE OVERVIEW & PROJECT CYCLE ==================== */}
             <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={6} mb={6}>
                 {/* Revenue Overview */}
                 <Box bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100">
-                    <Heading size="md" mb={2}>📈 Revenue Overview</Heading>
-                    <Text fontSize="sm" color="gray.500" mb={4}>Monthly revenue and expenses breakdown</Text>
+                    <Heading size="md" mb={2}>📈 Expense Overview</Heading>
+                    <Text fontSize="sm" color="gray.500" mb={4}>Monthly expenses breakdown</Text>
                     <ResponsiveContainer width="100%" height={280}>
-                        <AreaChart data={revenueData}>
+                        <AreaChart data={expenseData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                             <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
                             <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`} />
                             <Tooltip formatter={(value) => `Rs.${value.toLocaleString()}`} />
                             <Legend />
-                            <Area type="monotone" dataKey="revenue" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Revenue" />
-                            <Area type="monotone" dataKey="expenses" stackId="2" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} name="Expenses" />
+                            <Area type="monotone" dataKey="expenses" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} name="Expenses" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </Box>
@@ -317,7 +318,7 @@ export default function Projectsummery() {
                                 <Th>Project Name</Th>
                                 <Th>Start Date</Th>
                                 <Th>End Date</Th>
-                                <Th>Budget</Th>
+                                <Th>Agreement Sum</Th>
                                 <Th>Progress</Th>
                                 <Th>Status</Th>
                             </Tr>

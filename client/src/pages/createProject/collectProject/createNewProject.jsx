@@ -1,8 +1,7 @@
 import {
-  Container,
+  Box,
   VStack,
   Heading,
-  Box,
   FormControl,
   FormLabel,
   Input,
@@ -22,15 +21,16 @@ import {
   CardBody,
   Grid,
   GridItem,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
   Radio,
   Spinner,
   SimpleGrid,
   Image as ChakraImage,
   IconButton,
-  AspectRatio
+  AspectRatio,
+  Container,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -39,8 +39,7 @@ import { contractorAPI } from "../../../api/contractors.js";
 import { officerAPI } from "../../../api/officers.js";
 import { projectAPI } from "../../../api/projects.js";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
-
-import { FiUser, FiCalendar, FiCheckSquare, FiX, FiCamera } from "react-icons/fi";
+import { FiUser, FiCalendar, FiCheckSquare, FiX, FiCamera, FiBriefcase, FiAlertCircle } from "react-icons/fi";
 
 const activities = [
   { id: 1, icon: "📦", action: "Planning & Feasibility", other: "Identify the need, Budget estimation, Site selection, Feasibility study, Initial drawings & concept design." },
@@ -57,19 +56,31 @@ export default function ProjectSetup() {
   const toast = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { id: projectId } = useParams(); // Get project ID from URL params
+  const { id: projectId } = useParams();
   const isEditMode = !!projectId;
+
+  // ── Theme colors ─────────────────────────────────────────────
   const bg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
-  const headerBg = useColorModeValue("gray.50", "gray.700");
-  const textColor = useColorModeValue("gray.600", "gray.400");
   const pageBg = useColorModeValue("gray.50", "gray.900");
+  const headerBg = useColorModeValue("#FFF8F0", "gray.700");
+  const headerBorderColor = useColorModeValue("orange.200", "orange.700");
+  const textColor = useColorModeValue("gray.500", "gray.400");
+  // ─────────────────────────────────────────────────────────────
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [agreements, setAgreements] = useState([]);
+  const [contractors, setContractors] = useState([]);
+  const [officers, setOfficers] = useState([]);
+  const [selectedActivities, setSelectedActivities] = useState([]);
+
+  // expense tracking
+  const [expenseEntries, setExpenseEntries] = useState([]);
+  const [newExpense, setNewExpense] = useState("");
 
   const [formData, setFormData] = useState({
     projectId: "",
@@ -82,35 +93,56 @@ export default function ProjectSetup() {
     contractorId: "",
     engineerId: "",
     technicalOfficerId: "",
-    secretaryId: ""
+    secretaryId: "",
   });
 
-  const [agreements, setAgreements] = useState([]);
-  const [contractors, setContractors] = useState([]);
-  const [selectedActivities, setSelectedActivities] = useState([]);
-  const [officers, setOfficers] = useState([]);
+  // ── Derived officer lists ─────────────────────────────────────
+  const engineers = officers.filter(o => o.designation?.toLowerCase() === "engineer");
+  const technicalOfficers = officers.filter(o => o.designation?.toLowerCase() === "technical officer");
+  const secretaries = officers.filter(o => o.designation?.toLowerCase() === "secretary");
 
-  // Filter officers by designation
-  const engineers = officers.filter(o =>
-    o.designation === 'Engineer' ||
-    o.designation?.toLowerCase() === 'engineer'
-  );
-  const technicalOfficers = officers.filter(o =>
-    o.designation === 'Technical Officer' ||
-    o.designation?.toLowerCase() === 'technical officer'
-  );
-  const secretaries = officers.filter(o =>
-    o.designation === 'Secretary' ||
-    o.designation?.toLowerCase() === 'secretary'
-  );
-
-  // Load data from APIs
+  // ── Data loading ──────────────────────────────────────────────
   useEffect(() => {
     fetchInitialData();
-    if (isEditMode && projectId) {
-      loadProjectData();
+    if (isEditMode && projectId) loadProjectData();
+  }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchInitialData = async () => {
+    try {
+      setLoadingData(true);
+      const [agreementsRes, contractorsRes, officersRes] = await Promise.all([
+        agreementAPI.getAll(),
+        contractorAPI.getAll(),
+        officerAPI.getAll(),
+      ]);
+
+      // Agreements
+      let agreementsList = [];
+      if (agreementsRes?.data && Array.isArray(agreementsRes.data)) agreementsList = agreementsRes.data;
+      else if (Array.isArray(agreementsRes)) agreementsList = agreementsRes;
+      setAgreements(agreementsList.filter(a => a.status === "ACTIVE" || a.status === "PENDING"));
+
+      // Contractors
+      let contractorsList = [];
+      if (contractorsRes?.data?.contractors && Array.isArray(contractorsRes.data.contractors)) contractorsList = contractorsRes.data.contractors;
+      else if (contractorsRes?.data && Array.isArray(contractorsRes.data)) contractorsList = contractorsRes.data;
+      else if (Array.isArray(contractorsRes)) contractorsList = contractorsRes;
+      setContractors(contractorsList.filter(c => c.isActive !== false));
+
+      // Officers
+      let officersList = [];
+      if (officersRes?.data?.officers && Array.isArray(officersRes.data.officers)) officersList = officersRes.data.officers;
+      else if (officersRes?.data && Array.isArray(officersRes.data)) officersList = officersRes.data;
+      else if (Array.isArray(officersRes)) officersList = officersRes;
+      setOfficers(officersList.filter(o => o.status !== false));
+
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to load data. Please try again.");
+    } finally {
+      setLoadingData(false);
     }
-  }, [projectId]);
+  };
 
   const loadProjectData = async () => {
     try {
@@ -122,142 +154,59 @@ export default function ProjectSetup() {
         projectName: project.projectName || "",
         status: project.status || "PLANNING",
         description: project.description || "",
-        startDate: project.startDate ? project.startDate.split('T')[0] : "",
-        endDate: project.endDate ? project.endDate.split('T')[0] : "",
+        startDate: project.startDate ? project.startDate.split("T")[0] : "",
+        endDate: project.endDate ? project.endDate.split("T")[0] : "",
         agreementId: project.agreementId || "",
         contractorId: project.contractorId || "",
-        engineerId: project.officerAssignments?.find(a => a.role === 'ENGINEER')?.officerId || "",
-        technicalOfficerId: project.officerAssignments?.find(a => a.role === 'TECHNICAL_OFFICER')?.officerId || "",
-        secretaryId: project.officerAssignments?.find(a => a.role === 'SECRETARY')?.officerId || ""
+        engineerId: project.officerAssignments?.find(a => a.role === "ENGINEER")?.officerId || "",
+        technicalOfficerId: project.officerAssignments?.find(a => a.role === "TECHNICAL_OFFICER")?.officerId || "",
+        secretaryId: project.officerAssignments?.find(a => a.role === "SECRETARY")?.officerId || "",
+        totalExpense: project.totalExpense || 0,
       });
 
-      // Set selected activities based on completedPercent
-      const activitiesCount = Math.round((project.completedPercent || 0) / (100 / activities.length));
-      setSelectedActivities(Array.from({ length: activitiesCount }, (_, i) => i + 1));
+      setExpenseEntries(project.expenseEntries || []);
+
+      const count = Math.round((project.completedPercent || 0) / (100 / activities.length));
+      setSelectedActivities(Array.from({ length: count }, (_, i) => i + 1));
     } catch (err) {
       console.error("Error loading project:", err);
-      toast({
-        title: "Error",
-        description: "Failed to load project data",
-        status: "error",
-        duration: 3000,
-        isClosable: true
-      });
+      toast({ title: "Error", description: "Failed to load project data", status: "error", duration: 3000, isClosable: true });
     }
   };
 
-  const fetchInitialData = async () => {
-    try {
-      setLoadingData(true);
-      const [agreementsRes, contractorsRes, officersRes] = await Promise.all([
-        agreementAPI.getAll(),
-        contractorAPI.getAll(),
-        officerAPI.getAll()
-      ]);
+  // ── Handlers ─────────────────────────────────────────────────
+  const handleChange = (e) =>
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
-      // Handle agreements response
-      let agreementsList = [];
-      if (agreementsRes?.data && Array.isArray(agreementsRes.data)) {
-        agreementsList = agreementsRes.data;
-      } else if (Array.isArray(agreementsRes)) {
-        agreementsList = agreementsRes;
-      }
-      // Filter only active agreements
-      setAgreements(agreementsList.filter(a => a.status === 'ACTIVE' || a.status === 'PENDING'));
-
-      // Handle contractors response
-      let contractorsList = [];
-      if (contractorsRes?.data?.contractors && Array.isArray(contractorsRes.data.contractors)) {
-        contractorsList = contractorsRes.data.contractors;
-      } else if (contractorsRes?.data && Array.isArray(contractorsRes.data)) {
-        contractorsList = contractorsRes.data;
-      } else if (Array.isArray(contractorsRes)) {
-        contractorsList = contractorsRes;
-      }
-      // Filter only active contractors
-      setContractors(contractorsList.filter(c => c.isActive !== false));
-
-      // Handle officers response
-      let officersList = [];
-      if (officersRes?.data?.officers && Array.isArray(officersRes.data.officers)) {
-        officersList = officersRes.data.officers;
-      } else if (officersRes?.data && Array.isArray(officersRes.data)) {
-        officersList = officersRes.data;
-      } else if (Array.isArray(officersRes)) {
-        officersList = officersRes;
-      }
-      // Filter only active officers
-      setOfficers(officersList.filter(o => o.status !== false));
-
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError("Failed to load data. Please try again.");
-    } finally {
-      setLoadingData(false);
-    }
-  };
-
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = (id) =>
     setSelectedActivities(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-  };
 
   const handleImageChange = (e) => {
     let files = Array.from(e.target.files);
-
-    // enforce max 10 images overall (multer limit)
     const remaining = 10 - selectedImages.length;
+
     if (files.length > remaining) {
-      toast({
-        title: 'Too many images',
-        description: `You can only upload ${remaining} more file(s).`,
-        status: 'warning',
-        duration: 3000,
-        isClosable: true
-      });
+      toast({ title: "Too many images", description: `You can only upload ${remaining} more file(s).`, status: "warning", duration: 3000, isClosable: true });
       files = files.slice(0, remaining);
     }
 
-    // filter to images and enforce 10MB limit (same as server)
     const validFiles = [];
     files.forEach(file => {
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: 'Invalid file type',
-          description: `${file.name} is not an image and will be skipped.`,
-          status: 'warning',
-          duration: 3000,
-          isClosable: true
-        });
+      if (!file.type.startsWith("image/")) {
+        toast({ title: "Invalid file type", description: `${file.name} is not an image and will be skipped.`, status: "warning", duration: 3000, isClosable: true });
       } else if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: 'File too large',
-          description: `${file.name} exceeds 10MB limit and will be skipped.`,
-          status: 'warning',
-          duration: 3000,
-          isClosable: true
-        });
+        toast({ title: "File too large", description: `${file.name} exceeds 10 MB and will be skipped.`, status: "warning", duration: 3000, isClosable: true });
       } else {
         validFiles.push(file);
       }
     });
 
     setSelectedImages(prev => [...prev, ...validFiles]);
-
-    // Create previews for valid files
     validFiles.forEach(file => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result]);
-      };
+      reader.onloadend = () => setImagePreviews(prev => [...prev, reader.result]);
       reader.readAsDataURL(file);
     });
   };
@@ -277,24 +226,17 @@ export default function ProjectSetup() {
     }
 
     setLoading(true);
-
     try {
-      // Build officer assignments array
       const officerAssignments = [];
-      if (formData.engineerId) {
-        officerAssignments.push({ officerId: parseInt(formData.engineerId), role: 'ENGINEER' });
-      }
-      if (formData.technicalOfficerId) {
-        officerAssignments.push({ officerId: parseInt(formData.technicalOfficerId), role: 'TECHNICAL_OFFICER' });
-      }
-      if (formData.secretaryId) {
-        officerAssignments.push({ officerId: parseInt(formData.secretaryId), role: 'SECRETARY' });
-      }
+      if (formData.engineerId) officerAssignments.push({ officerId: parseInt(formData.engineerId), role: "ENGINEER" });
+      if (formData.technicalOfficerId) officerAssignments.push({ officerId: parseInt(formData.technicalOfficerId), role: "TECHNICAL_OFFICER" });
+      if (formData.secretaryId) officerAssignments.push({ officerId: parseInt(formData.secretaryId), role: "SECRETARY" });
 
       const submitData = {
         projectId: formData.projectId,
         projectName: formData.projectName,
-        description: formData.description || `Activities: ${selectedActivities.map(id => activities.find(a => a.id === id)?.action).join(', ')}`,
+        description: formData.description ||
+          `Activities: ${selectedActivities.map(id => activities.find(a => a.id === id)?.action).join(", ")}`,
         status: formData.status,
         startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
         endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
@@ -302,454 +244,500 @@ export default function ProjectSetup() {
         contractorId: formData.contractorId || null,
         createdById: user?.id || null,
         completedPercent: Math.round((selectedActivities.length / activities.length) * 100),
-        officerAssignments
+        officerAssignments,
+        totalExpense: expenseEntries.reduce((a,b)=>a+b,0),
+        expenseEntries,
       };
 
       if (isEditMode) {
-        // Update existing project
         await projectAPI.update(projectId, submitData);
-
-        toast({
-          title: "Project Updated",
-          description: "Project and activities updated successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true
-        });
+        toast({ title: "Project Updated", description: "Project updated successfully", status: "success", duration: 3000, isClosable: true });
       } else {
-        // Create new project
         const createResponse = await projectAPI.create(submitData);
         const newProjectId = createResponse.data?.id || createResponse?.id;
 
-        // Upload images if any selected
         if (selectedImages.length > 0 && newProjectId) {
           try {
-            const formData = new FormData();
-            selectedImages.forEach((file) => {
-              formData.append('images', file);
-            });
-
-            await projectAPI.uploadImages(newProjectId, formData);
+            const fd = new FormData();
+            selectedImages.forEach(file => fd.append("images", file));
+            await projectAPI.uploadImages(newProjectId, fd);
           } catch (imgErr) {
-            console.error("Image upload error:", imgErr.response?.data || imgErr.message);
-            // if server returned detailed message, include it in toast
             let msg = "Project created but some images failed to upload";
-            if (imgErr.response?.data?.message) {
-              msg += `: ${imgErr.response.data.message}`;
-            }
-            toast({
-              title: "Warning",
-              description: msg,
-              status: "warning",
-              duration: 4000,
-              isClosable: true
-            });
+            if (imgErr.response?.data?.message) msg += `: ${imgErr.response.data.message}`;
+            toast({ title: "Warning", description: msg, status: "warning", duration: 4000, isClosable: true });
           }
         }
-
-        toast({
-          title: "Project Created",
-          description: "Project and activities saved successfully",
-          status: "success",
-          duration: 3000,
-          isClosable: true
-        });
+        toast({ title: "Project Created", description: "Project saved successfully", status: "success", duration: 3000, isClosable: true });
       }
 
       navigate("/createproject/collectProject/list");
     } catch (err) {
-      console.error("Error creating project:", err);
-      setError(err.response?.data?.message || "Failed to create project");
+      console.error("Error saving project:", err);
+      setError(err.response?.data?.message || "Failed to save project");
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Loading screen ────────────────────────────────────────────
   if (loadingData) {
     return (
-      <Box h="100vh" display="flex" alignItems="center" justifyContent="center">
+      <Box h="100vh" display="flex" alignItems="center" justifyContent="center" bg={pageBg}>
         <VStack spacing={4}>
-          <Spinner size="xl" color="blue.500" />
-          <Text>Loading data...</Text>
+          <Spinner size="xl" color="orange.400" />
+          <Text color="orange.400" fontWeight="medium">Loading data...</Text>
         </VStack>
       </Box>
     );
   }
 
+  // ── Shared style helpers ──────────────────────────────────────
+  const cardProps = {
+    bg,
+    shadow: "sm",
+    border: "1px solid",
+    borderColor,
+    borderRadius: "lg",
+  };
+
+  const cardHeaderProps = {
+    bg: headerBg,
+    borderBottom: "2px solid",
+    borderColor: headerBorderColor,
+    borderTopRadius: "lg",
+    py: 3,
+    px: 5,
+  };
+
+  // ── Render ────────────────────────────────────────────────────
   return (
-    <Box h="100vh" bg={pageBg}>
-      <Container maxW="1200px" py={6}>
+    <Box w="100%" minH="calc(100vh - 64px)" px={{ base: 2, md: 4, lg: 6 }} py={6} bg={pageBg}>
+      <Container maxW="900px">
         <form onSubmit={handleSubmit}>
-          <VStack spacing={6} align="stretch">
+          <Box maxH="calc(100vh - 150px)" overflowY="auto" p={6} bg={bg} border="1px solid" borderColor={borderColor} borderRadius="lg">
+            <VStack spacing={5} align="stretch">
 
-            {/* Breadcrumb */}
-            <Breadcrumb>
-              <BreadcrumbItem>
-                <BreadcrumbLink as={Link} to="/createProject">Project</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbItem isCurrentPage>
-                <BreadcrumbLink fontWeight="bold">{isEditMode ? "Edit Project" : "Create Project"}</BreadcrumbLink>
-              </BreadcrumbItem>
-            </Breadcrumb>
+              {/* Breadcrumb */}
+              <Breadcrumb fontSize="sm" separator="/">
+                <BreadcrumbItem>
+                  <BreadcrumbLink as={Link} to="/createProject" color="orange.500">
+                    Projects
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
 
-            {error && (
-              <Alert status="error">
-                <AlertIcon />
-                {error}
-              </Alert>
-            )}
+                <BreadcrumbItem>
+                  <BreadcrumbLink as={Link} to="/createproject/collectProject/list" color="orange.500">
+                    Project List
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
 
-            {/* Project Details */}
-            <Card bg={bg} shadow="md">
-              <CardHeader borderBottom="1px" borderColor={borderColor} bg={headerBg}>
-                <Flex align="center">
-                  <FiCalendar />
-                  <Heading size="md" ml={2}>Project Details</Heading>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel htmlFor="projectId">Project ID</FormLabel>
-                      <Input
-                        id="projectId"
-                        name="projectId"
-                        value={formData.projectId}
-                        onChange={handleChange}
-                        placeholder="e.g., PRJ-001"
-                      />
-                    </FormControl>
-                  </GridItem>
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel htmlFor="projectName">Project Name</FormLabel>
-                      <Input
-                        id="projectName"
-                        name="projectName"
-                        value={formData.projectName}
-                        onChange={handleChange}
-                        placeholder="Enter project name"
-                      />
-                    </FormControl>
-                  </GridItem>
-                  <GridItem>
-                    <FormControl>
-                      <FormLabel htmlFor="status">Status</FormLabel>
-                      <Select
-                        id="status"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                      >
-                        <option value="PLANNING">Planning</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="ON_HOLD">On Hold</option>
-                        <option value="COMPLETED">Completed</option>
-                        <option value="CANCELLED">Cancelled</option>
-                      </Select>
-                    </FormControl>
-                  </GridItem>
-                  <GridItem>
-                    <FormControl>
-                      <FormLabel htmlFor="description">Description</FormLabel>
-                      <Input
-                        id="description"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        placeholder="Enter description"
-                      />
-                    </FormControl>
-                  </GridItem>
-                  <GridItem>
-                    <FormControl>
-                      <FormLabel htmlFor="startDate">Start Date</FormLabel>
-                      <Input
-                        id="startDate"
-                        name="startDate"
-                        type="date"
-                        value={formData.startDate}
-                        onChange={handleChange}
-                      />
-                    </FormControl>
-                  </GridItem>
-                  <GridItem>
-                    <FormControl>
-                      <FormLabel htmlFor="endDate">End Date</FormLabel>
-                      <Input
-                        id="endDate"
-                        name="endDate"
-                        type="date"
-                        value={formData.endDate}
-                        onChange={handleChange}
-                      />
-                    </FormControl>
-                  </GridItem>
-                </Grid>
-              </CardBody>
-            </Card>
+                <BreadcrumbItem isCurrentPage>
+                  <BreadcrumbLink color="orange.500" size="sm" fontWeight="bold">
+                    {isEditMode ? "Edit Project" : "Create New Project"}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </Breadcrumb>
 
-            {/* Activities */}
-            <Card shadow="md">
-              <CardHeader borderBottom="1px" borderColor={borderColor}>
-                <Flex align="center">
-                  <FiCheckSquare />
-                  <Heading size="md" ml={2}>Project Activities</Heading>
-                  <Badge ml={4} colorScheme="blue">{selectedActivities.length} selected</Badge>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <Grid templateColumns="1fr" gap={4}>
-                  {activities.map(activity => (
-                    <GridItem key={activity.id}>
-                      <Flex gap={3} align="flex-start">
-                        <Checkbox
-                          isChecked={selectedActivities.includes(activity.id)}
-                          onChange={() => handleCheckboxChange(activity.id)}
-                        />
-                        <Box>
-                          <Text fontWeight="bold">{activity.icon} {activity.action}</Text>
-                          <Text fontSize="sm" color="gray.500">{activity.other}</Text>
-                        </Box>
-                      </Flex>
+              {/* Page title */}
+              <Box>
+                <Heading size="lg" color="orange.500" fontWeight="bold" letterSpacing="tight">
+                  {isEditMode ? "Edit Project" : "Create New Project"}
+                </Heading>
+                <Text color="gray.500" fontSize="sm" mt={1}>
+                  {isEditMode
+                    ? "Update project details and assignments"
+                    : "Fill in the details to set up a new project"}
+                </Text>
+              </Box>
+
+              {error && (
+                <Alert status="error" borderRadius="md">
+                  <AlertIcon />
+                  {error}
+                </Alert>
+              )}
+
+              {/* ── Project Details ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiCalendar /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Details</Heading>
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={5}>
+                  <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={5}>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Project ID</FormLabel>
+                        <Input name="projectId" value={formData.projectId} onChange={handleChange}
+                          placeholder="e.g., PRJ-001" focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                      </FormControl>
                     </GridItem>
-                  ))}
-                </Grid>
-              </CardBody>
-            </Card>
-
-            {/* Agreement */}
-            <Card shadow="md">
-              <CardHeader borderBottom="1px" borderColor={borderColor}>
-                <Flex align="center">
-                  <FiCheckSquare />
-                  <Heading size="md" ml={2}>Select Agreement</Heading>
-                  {formData.agreementId && <Badge ml={4} colorScheme="green">Selected</Badge>}
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <Grid templateColumns="1fr" gap={4}>
-                  {agreements.map((agreement) => (
-                    <GridItem key={agreement.id}>
-                      <Flex gap={3} align="flex-start">
-                        <Radio
-                          name="agreementId"
-                          value={agreement.id}
-                          isChecked={formData.agreementId === agreement.id}
-                          onChange={() => setFormData(prev => ({ ...prev, agreementId: agreement.id }))}
-                        />
-                        <Box>
-                          <Text fontWeight="bold">
-                            {agreement.agreementNo} - {agreement.projectName} | Sum: Rs.{agreement.agreementSum?.toLocaleString()}
-                          </Text>
-                          <Text fontSize="sm" color="gray.500">
-                            Period: {agreement.periodDays} days | Start: {agreement.startDate ? new Date(agreement.startDate).toLocaleDateString() : 'N/A'} | End: {agreement.completionDate ? new Date(agreement.completionDate).toLocaleDateString() : 'N/A'}
-                          </Text>
-                          <Badge colorScheme={agreement.status === "ACTIVE" ? "green" : agreement.status === "PENDING" ? "yellow" : "red"}>{agreement.status}</Badge>
-                        </Box>
-                      </Flex>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Project Name</FormLabel>
+                        <Input name="projectName" value={formData.projectName} onChange={handleChange}
+                          placeholder="Enter project name" focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                      </FormControl>
                     </GridItem>
-                  ))}
-                </Grid>
-              </CardBody>
-            </Card>
-
-            {/* Contractor */}
-            <Card shadow="md">
-              <CardHeader borderBottom="1px" borderColor={borderColor}>
-                <Flex align="center">
-                  <FiUser />
-                  <Heading size="md" ml={2}>Select Contractor</Heading>
-                  {formData.contractorId && <Badge ml={4} colorScheme="green">Selected</Badge>}
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <Grid templateColumns="1fr" gap={4}>
-                  {contractors.map((contractor) => (
-                    <GridItem key={contractor.id}>
-                      <Flex gap={3} align="flex-start">
-                        <Radio
-                          name="contractorId"
-                          value={contractor.id}
-                          isChecked={formData.contractorId === contractor.id}
-                          onChange={() => setFormData(prev => ({ ...prev, contractorId: contractor.id }))}
-                        />
-                        <Box>
-                          <Text fontWeight="bold">{contractor.companyNo} - {contractor.companyName}</Text>
-                          <Text fontSize="sm" color="gray.500">
-                            Reg No: {contractor.registrationNo} | Specialization: {contractor.specialization}
-                          </Text>
-                          <Text fontSize="sm" color="gray.500">
-                            Contact: {contractor.phone} | Email: {contractor.email}
-                          </Text>
-                          <Badge colorScheme={contractor.isActive ? "green" : "red"}>{contractor.isActive ? "Active" : "Inactive"}</Badge>
-                        </Box>
-                      </Flex>
+                    <GridItem>
+                      <FormControl>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Status</FormLabel>
+                        <Select name="status" value={formData.status} onChange={handleChange}
+                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          <option value="PLANNING">Planning</option>
+                          <option value="IN_PROGRESS">In Progress</option>
+                          <option value="ON_HOLD">On Hold</option>
+                          <option value="COMPLETED">Completed</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </Select>
+                      </FormControl>
                     </GridItem>
-                  ))}
-                </Grid>
-              </CardBody>
-            </Card>
+                    <GridItem>
+                      <FormControl>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Description</FormLabel>
+                        <Input name="description" value={formData.description} onChange={handleChange}
+                          placeholder="Enter description" focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                      </FormControl>
+                    </GridItem>
+                    <GridItem>
+                      <FormControl>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Start Date</FormLabel>
+                        <Input name="startDate" type="date" value={formData.startDate} onChange={handleChange}
+                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                      </FormControl>
+                    </GridItem>
+                    <GridItem>
+                      <FormControl>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">End Date</FormLabel>
+                        <Input name="endDate" type="date" value={formData.endDate} onChange={handleChange}
+                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                      </FormControl>
+                    </GridItem>
+                  </Grid>
+                </CardBody>
+              </Card>
 
-            {/* Officers */}
-            <Card shadow="md" borderRadius="lg" mb={4}>
-              <CardHeader borderBottom="1px" borderColor={borderColor}>
-                <Flex align="center">
-                  <FiUser />
-                  <Heading size="md" ml={2}>Assign Officers</Heading>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel>Engineer</FormLabel>
-                      <Select
-                        placeholder="Select Engineer"
-                        name="engineerId"
-                        value={formData.engineerId}
-                        onChange={handleChange}
-                      >
-                        {engineers.map(engineer => (
-                          <option key={engineer.id} value={engineer.id}>
-                            {engineer.officerNo} - {engineer.fullName} ({engineer.division})
-                          </option>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </GridItem>
-
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel>Technical Officer</FormLabel>
-                      <Select
-                        placeholder="Select Technical Officer"
-                        name="technicalOfficerId"
-                        value={formData.technicalOfficerId}
-                        onChange={handleChange}
-                      >
-                        {technicalOfficers.map(officer => (
-                          <option key={officer.id} value={officer.id}>
-                            {officer.officerNo} - {officer.fullName} ({officer.division})
-                          </option>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </GridItem>
-
-                  <GridItem>
-                    <FormControl isRequired>
-                      <FormLabel>Secretary</FormLabel>
-                      <Select
-                        placeholder="Select Secretary"
-                        name="secretaryId"
-                        value={formData.secretaryId}
-                        onChange={handleChange}
-                      >
-                        {secretaries.map(secretary => (
-                          <option key={secretary.id} value={secretary.id}>
-                            {secretary.officerNo} - {secretary.fullName} ({secretary.division})
-                          </option>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </GridItem>
-                </Grid>
-              </CardBody>
-            </Card>
-
-            {/* Project Images */}
-            <Card shadow="md" borderRadius="lg" mb={4}>
-              <CardHeader borderBottom="1px" borderColor={borderColor}>
-                <Flex align="center">
-                  <FiCamera />
-                  <Heading size="md" ml={2}>Project Images</Heading>
-                  <Badge ml={4} colorScheme="blue">{selectedImages.length} selected</Badge>
-                </Flex>
-              </CardHeader>
-              <CardBody>
-                <VStack spacing={4} align="stretch">
-                  {/* Image Upload Input */}
-                  <FormControl>
-                    <FormLabel htmlFor="image-upload">
-                      Upload Pictures (Optional)
-                    </FormLabel>
-
-                    <Input
-                      id="image-upload"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageChange}
-                      display="none"
-                    />
-
-                    <Button
-                      as="label"
-                      htmlFor="image-upload"
-                      colorScheme="teal"
-                      variant="outline"
-                      cursor="pointer"
-                      leftIcon={<FiCamera />}
-                      w="full"
-                    >
-                      Choose Images
-                    </Button>
-
-                    <Text fontSize="xs" color={textColor} mt={2}>
-                      Allowed: JPG, PNG, WebP. Max 5MB each. You can select multiple files at once.
-                    </Text>
-                  </FormControl>
-
-                  {/* Image Previews */}
-                  {imagePreviews.length > 0 && (
-                    <Box>
-                      <Heading size="sm" mb={4}>Selected Images Preview</Heading>
-                      <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={4}>
-                        {imagePreviews.map((preview, index) => (
-                          <Box
-                            key={index}
-                            position="relative"
-                            borderWidth="1px"
-                            borderColor={borderColor}
-                            borderRadius="lg"
-                            overflow="hidden"
-                          >
-                            <AspectRatio ratio={1}>
-                              <ChakraImage
-                                src={preview}
-                                alt={`Preview ${index}`}
-                                objectFit="cover"
-                              />
-                            </AspectRatio>
-                            <IconButton
-                              icon={<FiX />}
-                              size="sm"
-                              colorScheme="red"
-                              position="absolute"
-                              top={1}
-                              right={1}
-                              onClick={() => removeImage(index)}
-                              aria-label="Remove image"
-                            />
+              {/* ── Project Activities ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiCheckSquare /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Activities</Heading>
+                    <Badge ml={2} colorScheme="orange" borderRadius="full" px={2}>
+                      {selectedActivities.length} selected
+                    </Badge>
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={4}>
+                  <Grid templateColumns="1fr" gap={3}>
+                    {activities.map(activity => (
+                      <GridItem key={activity.id}>
+                        <Flex
+                          gap={3} align="flex-start" p={3} borderRadius="md"
+                          border="1px solid"
+                          borderColor={selectedActivities.includes(activity.id) ? "orange.300" : borderColor}
+                          bg={selectedActivities.includes(activity.id) ? "orange.50" : "transparent"}
+                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          transition="all 0.15s" cursor="pointer"
+                          onClick={() => handleCheckboxChange(activity.id)}
+                        >
+                          <Checkbox
+                            isChecked={selectedActivities.includes(activity.id)}
+                            onChange={() => { }}
+                            colorScheme="orange" mt={0.5} pointerEvents="none"
+                          />
+                          <Box>
+                            <Text fontWeight="semibold" fontSize="sm">{activity.icon} {activity.action}</Text>
+                            <Text fontSize="xs" color={textColor} mt={0.5}>{activity.other}</Text>
                           </Box>
-                        ))}
-                      </SimpleGrid>
-                    </Box>
+                        </Flex>
+                      </GridItem>
+                    ))}
+                  </Grid>
+                </CardBody>
+              </Card>
+
+              {/* ── Financials: Expense ── */}
+      
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiAlertCircle /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Expense</Heading>
+                    <Text ml="auto" fontSize="sm" fontWeight="semibold">
+                      Total: Rs. {expenseEntries.reduce((a,b)=>a+b,0).toLocaleString()}
+                    </Text>
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={4}>
+                  <HStack spacing={2} mb={3}>
+                    <Input
+                      type="number"
+                      placeholder="Amount"
+                      value={newExpense}
+                      onChange={e => setNewExpense(e.target.value)}
+                      flex="1"
+                    />
+                    <Button size="sm" colorScheme="orange" onClick={() => {
+                      const val = parseFloat(newExpense);
+                      if (!isNaN(val)) {
+                        setExpenseEntries(prev => [...prev, val]);
+                        setNewExpense("");
+                      }
+                    }}>
+                      Add
+                    </Button>
+                  </HStack>
+                  {expenseEntries.length > 0 && (
+                    <VStack align="start" spacing={1}>
+                      {expenseEntries.map((v,i) => (
+                        <HStack key={i} spacing={2}>
+                          <Text fontSize="sm">- Rs. {v.toLocaleString()}</Text>
+                          <IconButton
+                            size="xs"
+                            aria-label="Remove"
+                            icon={<FiX />}
+                            onClick={() => setExpenseEntries(prev => prev.filter((_, idx) => idx !== i))}
+                          />
+                        </HStack>
+                      ))}
+                    </VStack>
                   )}
-                </VStack>
-              </CardBody>
-            </Card>
-            <HStack justify="flex-end">
-              <Link to="/createProject">
-                <Button variant="outline">Cancel</Button>
-              </Link>
-              <Button type="submit" colorScheme="blue" isLoading={loading}>
-                {isEditMode ? "Update Project" : "Create Project"}
+                </CardBody>
+              </Card>
+
+              {/* ── Select Agreement ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiCheckSquare /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Select Agreement</Heading>
+                    {formData.agreementId && (
+                      <Badge ml={2} colorScheme="green" borderRadius="full" px={2}>Selected</Badge>
+                    )}
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={4}>
+                  <Grid templateColumns="1fr" gap={3}>
+                    {agreements.length === 0 ? (
+                      <Text fontSize="sm" color={textColor}>No active agreements found.</Text>
+                    ) : agreements.map((agreement) => (
+                      <GridItem key={agreement.id}>
+                        <Flex
+                          gap={3} align="flex-start" p={3} borderRadius="md"
+                          border="1px solid"
+                          borderColor={formData.agreementId === agreement.id ? "orange.300" : borderColor}
+                          bg={formData.agreementId === agreement.id ? "orange.50" : "transparent"}
+                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          transition="all 0.15s" cursor="pointer"
+                          onClick={() => setFormData(prev => ({ ...prev, agreementId: agreement.id }))}
+                        >
+                          <Radio
+                            isChecked={formData.agreementId === agreement.id}
+                            onChange={() => { }} colorScheme="orange" mt={0.5} pointerEvents="none"
+                          />
+                          <Box>
+                            <Text fontWeight="semibold" fontSize="sm">
+                              {agreement.agreementNo} — {agreement.projectName}&nbsp;|&nbsp;Rs.{agreement.agreementSum?.toLocaleString()}
+                            </Text>
+                            <Text fontSize="xs" color={textColor} mt={0.5}>
+                              Period: {agreement.periodDays} days&nbsp;|&nbsp;
+                              Start: {agreement.startDate ? new Date(agreement.startDate).toLocaleDateString() : "N/A"}&nbsp;|&nbsp;
+                              End: {agreement.completionDate ? new Date(agreement.completionDate).toLocaleDateString() : "N/A"}
+                            </Text>
+                            <Badge mt={1} borderRadius="full" px={2} fontSize="xs"
+                              colorScheme={agreement.status === "ACTIVE" ? "green" : agreement.status === "PENDING" ? "yellow" : "red"}>
+                              {agreement.status}
+                            </Badge>
+                          </Box>
+                        </Flex>
+                      </GridItem>
+                    ))}
+                  </Grid>
+                </CardBody>
+              </Card>
+
+              {/* ── Select Contractor ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiUser /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Select Contractor</Heading>
+                    {formData.contractorId && (
+                      <Badge ml={2} colorScheme="green" borderRadius="full" px={2}>Selected</Badge>
+                    )}
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={4}>
+                  <Grid templateColumns="1fr" gap={3}>
+                    {contractors.length === 0 ? (
+                      <Text fontSize="sm" color={textColor}>No active contractors found.</Text>
+                    ) : contractors.map((contractor) => (
+                      <GridItem key={contractor.id}>
+                        <Flex
+                          gap={3} align="flex-start" p={3} borderRadius="md"
+                          border="1px solid"
+                          borderColor={formData.contractorId === contractor.id ? "orange.300" : borderColor}
+                          bg={formData.contractorId === contractor.id ? "orange.50" : "transparent"}
+                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          transition="all 0.15s" cursor="pointer"
+                          onClick={() => setFormData(prev => ({ ...prev, contractorId: contractor.id }))}
+                        >
+                          <Radio
+                            isChecked={formData.contractorId === contractor.id}
+                            onChange={() => { }} colorScheme="orange" mt={0.5} pointerEvents="none"
+                          />
+                          <Box>
+                            <Text fontWeight="semibold" fontSize="sm">
+                              {contractor.companyName}
+                            </Text>
+                            <Text fontSize="xs" color={textColor} mt={0.5}>
+                              Reg No: {contractor.registrationNo}&nbsp;|&nbsp;Specialization: {contractor.specialization}
+                            </Text>
+                            <Text fontSize="xs" color={textColor}>
+                              Contact: {contractor.phone}&nbsp;|&nbsp;{contractor.email}
+                            </Text>
+                            <Badge mt={1} borderRadius="full" px={2} fontSize="xs"
+                              colorScheme={contractor.isActive ? "green" : "red"}>
+                              {contractor.isActive ? "Active" : "Inactive"}
+                            </Badge>
+                          </Box>
+                        </Flex>
+                      </GridItem>
+                    ))}
+                  </Grid>
+                </CardBody>
+              </Card>
+
+              {/* ── Assign Officers ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiUser /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Assign Officers</Heading>
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={5}>
+                  <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={5}>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Engineer</FormLabel>
+                        <Select placeholder="Select Engineer" name="engineerId" value={formData.engineerId}
+                          onChange={handleChange} focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          {engineers.map(e => (
+                            <option key={e.id} value={e.id}>{e.officerNo} - {e.fullName} ({e.division})</option>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </GridItem>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Technical Officer</FormLabel>
+                        <Select placeholder="Select Technical Officer" name="technicalOfficerId" value={formData.technicalOfficerId}
+                          onChange={handleChange} focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          {technicalOfficers.map(o => (
+                            <option key={o.id} value={o.id}>{o.officerNo} - {o.fullName} ({o.division})</option>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </GridItem>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Secretary</FormLabel>
+                        <Select placeholder="Select Secretary" name="secretaryId" value={formData.secretaryId}
+                          onChange={handleChange} focusBorderColor="orange.400"
+                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          {secretaries.map(s => (
+                            <option key={s.id} value={s.id}>{s.officerNo} - {s.fullName} ({s.division})</option>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </GridItem>
+                  </Grid>
+                </CardBody>
+              </Card>
+
+              {/* ── Project Images ── */}
+              <Card {...cardProps}>
+                <CardHeader {...cardHeaderProps}>
+                  <Flex align="center" gap={2}>
+                    <Box color="orange.400"><FiCamera /></Box>
+                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Images</Heading>
+                    <Badge ml={2} colorScheme="orange" borderRadius="full" px={2}>
+                      {selectedImages.length} selected
+                    </Badge>
+                  </Flex>
+                </CardHeader>
+                <CardBody px={5} py={5}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl>
+                      <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">
+                        Upload Pictures (Optional)
+                      </FormLabel>
+                      <Input id="image-upload" type="file" accept="image/*" multiple
+                        onChange={handleImageChange} display="none" />
+                      <Button as="label" htmlFor="image-upload" variant="outline" cursor="pointer"
+                        leftIcon={<FiCamera />} w="full" borderColor="orange.300" color="orange.500"
+                        _hover={{ bg: "orange.50", borderColor: "orange.400" }}>
+                        Choose Images
+                      </Button>
+                      <Text fontSize="xs" color={textColor} mt={2}>
+                        Allowed: JPG, PNG, WebP. Max 10 MB each. You can select multiple files at once.
+                      </Text>
+                    </FormControl>
+
+                    {imagePreviews.length > 0 && (
+                      <Box>
+                        <Text fontWeight="semibold" fontSize="sm" mb={3} color="gray.600">
+                          Selected Images Preview
+                        </Text>
+                        <SimpleGrid columns={{ base: 2, md: 3, lg: 4 }} spacing={3}>
+                          {imagePreviews.map((preview, index) => (
+                            <Box key={index} position="relative" borderWidth="1px"
+                              borderColor={borderColor} borderRadius="lg" overflow="hidden">
+                              <AspectRatio ratio={1}>
+                                <ChakraImage src={preview} alt={`Preview ${index}`} objectFit="cover" />
+                              </AspectRatio>
+                              <IconButton icon={<FiX />} size="sm" colorScheme="red"
+                                position="absolute" top={1} right={1}
+                                onClick={() => removeImage(index)} aria-label="Remove image" />
+                            </Box>
+                          ))}
+                        </SimpleGrid>
+                      </Box>
+                    )}
+                  </VStack>
+                </CardBody>
+              </Card>
+            </VStack>
+          </Box>
+
+          {/* ── Action Buttons ── */}
+          <HStack justify="flex-end" spacing={3} pb={4}>
+            <Link to="/createProject">
+              <Button variant="outline" borderColor="gray.300" color="gray.600" _hover={{ bg: "gray.50" }}>
+                Cancel
               </Button>
-            </HStack>
-          </VStack>
+            </Link>
+            <Button
+              type="submit"
+              bg="orange.400" color="white"
+              _hover={{ bg: "orange.500" }} _active={{ bg: "orange.600" }}
+              isLoading={loading}
+              loadingText={isEditMode ? "Updating..." : "Creating..."}
+              fontWeight="semibold" px={6} shadow="md"
+            >
+              {isEditMode ? "Update Project" : "Create Project"}
+            </Button>
+          </HStack>
+
         </form>
       </Container>
     </Box>
