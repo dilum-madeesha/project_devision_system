@@ -294,6 +294,104 @@ class AuthController {
     }
   }
 
+  static async uploadProfileImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No image file uploaded'
+        });
+      }
+
+      const user = await AuthService.uploadUserProfileImage(req.user.id, req.file);
+
+      res.json({
+        success: true,
+        message: 'Profile image uploaded successfully',
+        data: user
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  static async deleteProfileImage(req, res) {
+    try {
+      const user = await AuthService.deleteUserProfileImage(req.user.id);
+
+      res.json({
+        success: true,
+        message: 'Profile image deleted successfully',
+        data: user
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  static async uploadUserImage(req, res) {
+    try {
+      const userId = parseInt(req.params.id, 10);
+      if (!Number.isFinite(userId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid user ID'
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No image file uploaded'
+        });
+      }
+
+      const user = await AuthService.uploadUserProfileImage(userId, req.file);
+
+      res.json({
+        success: true,
+        message: 'User image uploaded successfully',
+        data: user
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  static async deleteUserImage(req, res) {
+    try {
+      const userId = parseInt(req.params.id, 10);
+      if (!Number.isFinite(userId)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid user ID'
+        });
+      }
+
+      const user = await AuthService.deleteUserProfileImage(userId);
+
+      res.json({
+        success: true,
+        message: 'User image deleted successfully',
+        data: user
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
   // Delete user
   static async deleteUser(req, res, next) {
     try {

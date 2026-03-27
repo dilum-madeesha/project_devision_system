@@ -41,6 +41,7 @@ import {
   Input,
   Select,
   Switch,
+  Avatar,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -81,6 +82,8 @@ const UserListPage = () => {
     isActive: true
   });
   const [editLoading, setEditLoading] = useState(false);
+  const [editImageFile, setEditImageFile] = useState(null);
+  const [removeCurrentImage, setRemoveCurrentImage] = useState(false);
 
   // Delete confirmation state
   const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
@@ -261,8 +264,39 @@ const UserListPage = () => {
       privilege: user.privilege || 5,
       isActive: user.isActive
     });
-    // no profile picture
+    setEditImageFile(null);
+    setRemoveCurrentImage(false);
     onEditOpen();
+  };
+
+  const handleEditImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please select an image file.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Image too large',
+        description: 'Profile image must be 5MB or smaller.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setEditImageFile(file);
+    setRemoveCurrentImage(false);
   };
 
 
@@ -278,6 +312,12 @@ const UserListPage = () => {
         privilege: editFormData.privilege ? parseInt(editFormData.privilege) : undefined
       });
 
+      if (removeCurrentImage) {
+        await userAPI.deleteImage(editingUser.id);
+      } else if (editImageFile) {
+        await userAPI.uploadImage(editingUser.id, editImageFile);
+      }
+
       toast({
         title: "Success",
         description: "User updated successfully",
@@ -287,7 +327,8 @@ const UserListPage = () => {
       });
       await fetchUsers(); // Refresh the list
       onEditClose();
-      // nothing to clear for image
+      setEditImageFile(null);
+      setRemoveCurrentImage(false);
     } catch (err) {
       console.error("Error updating user:", err);
       toast({
@@ -637,6 +678,32 @@ const UserListPage = () => {
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4}>
+
+                <HStack w="100%" align="center" spacing={4}>
+                  <Avatar
+                    size="lg"
+                    name={`${editingUser?.firstName || ''} ${editingUser?.lastName || ''}`.trim()}
+                    src={removeCurrentImage ? undefined : userAPI.toImageSrc(editingUser?.profileImageUrl) || undefined}
+                  />
+                  <VStack align="start" spacing={2}>
+                    <FormControl>
+                      <FormLabel mb={1}>Profile Image</FormLabel>
+                      <Input type="file" accept="image/*" onChange={handleEditImageChange} p={1} />
+                    </FormControl>
+                    <Button
+                      size="xs"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => {
+                        setRemoveCurrentImage(true);
+                        setEditImageFile(null);
+                      }}
+                      isDisabled={!editingUser?.profileImageUrl}
+                    >
+                      Remove Current Image
+                    </Button>
+                  </VStack>
+                </HStack>
 
                 <HStack spacing={4} width="100%">
                   <FormControl isRequired>

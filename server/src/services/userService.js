@@ -2,6 +2,15 @@ import prisma from '../config/database.js';
 import { hashPassword } from '../utils/auth.js';
 
 class UserService {
+  static attachProfileImage(user) {
+    if (!user) return null;
+    return user;
+  }
+
+  static attachProfileImageToMany(users = []) {
+    return users.map((user) => this.attachProfileImage(user));
+  }
+
   // Create new user
   static async createUser(userData) {
     const {
@@ -42,7 +51,7 @@ class UserService {
 
     // hash the password before saving it
     const hashed = await hashPassword(password);
-    return prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         username,
         email,
@@ -54,8 +63,25 @@ class UserService {
         role: role || 'WORKER',
         privilege: parseInt(privilege) || 5,
         isActive: isActive !== undefined ? isActive : true
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        epfNumber: true,
+        firstName: true,
+        lastName: true,
+        division: true,
+        role: true,
+        privilege: true,
+        isActive: true,
+        profileImageUrl: true,
+        createdAt: true,
+        updatedAt: true,
       }
     });
+
+    return this.attachProfileImage(createdUser);
   }
 
   // Update user
@@ -103,15 +129,32 @@ class UserService {
       payload.password = await hashPassword(updateData.password);
     }
 
-    return prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: parseInt(userId) },
-      data: payload
+      data: payload,
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        epfNumber: true,
+        firstName: true,
+        lastName: true,
+        division: true,
+        role: true,
+        privilege: true,
+        isActive: true,
+        profileImageUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      }
     });
+
+    return this.attachProfileImage(updatedUser);
   }
 
   // Get user by ID
   static async getUserById(userId) {
-    return prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: parseInt(userId) },
       select: {
         id: true,
@@ -124,15 +167,18 @@ class UserService {
         role: true,
         privilege: true,
         isActive: true,
+        profileImageUrl: true,
         createdAt: true,
         updatedAt: true
       }
     });
+
+    return this.attachProfileImage(user);
   }
 
   // Get all users
   static async getAllUsers() {
-    return prisma.user.findMany({
+    const users = await prisma.user.findMany({
       select: {
         id: true,
         username: true,
@@ -144,10 +190,13 @@ class UserService {
         role: true,
         privilege: true,
         isActive: true,
+        profileImageUrl: true,
         createdAt: true
       },
       orderBy: { createdAt: 'desc' }
     });
+
+    return this.attachProfileImageToMany(users);
   }
 
   // Delete user

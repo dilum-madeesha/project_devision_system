@@ -269,6 +269,13 @@ const CostNavbar = () => {
                 <Avatar 
                   size="sm" 
                   name={`${user?.firstName} ${user?.lastName}`}
+                  src={
+                    user?.profileImageUrl
+                      ? user.profileImageUrl.startsWith('http')
+                        ? user.profileImageUrl
+                        : `http://localhost:5000${user.profileImageUrl}`
+                      : undefined
+                  }
                   bg="blue.500" 
                 />
                 <Box display={{ base: "none", lg: "block" }}>
@@ -286,7 +293,7 @@ const CostNavbar = () => {
                 Project Select
               </MenuItem>
               <MenuItem icon={<FiLogOut />} onClick={onOpen}>
-                Lrogout
+                Log out
               </MenuItem>
             </MenuList>
           </Menu>
@@ -297,10 +304,10 @@ const CostNavbar = () => {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Confirm Logout</ModalHeader>
+          <ModalHeader>Confirm Log out</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Are you sure you want to logout?
+            Are you sure you want to log out?
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>

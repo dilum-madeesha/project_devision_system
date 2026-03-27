@@ -1,5 +1,7 @@
 import api from './config.js';
 
+const serverBaseUrl = (api.defaults.baseURL || '').replace(/\/api\/?$/, '');
+
 export const userAPI = {
   getAll: async () => {
     try {
@@ -49,5 +51,34 @@ export const userAPI = {
       console.error('Delete User API Error:', error);
       throw error;
     }
+  },
+
+  uploadImage: async (id, imageFile) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const response = await api.post(`/auth/users/${id}/image`, formData);
+      return response.data;
+    } catch (error) {
+      console.error('Upload User Image API Error:', error);
+      throw error;
+    }
+  },
+
+  deleteImage: async (id) => {
+    try {
+      const response = await api.delete(`/auth/users/${id}/image`);
+      return response.data;
+    } catch (error) {
+      console.error('Delete User Image API Error:', error);
+      throw error;
+    }
+  },
+
+  toImageSrc: (profileImageUrl) => {
+    if (!profileImageUrl) return null;
+    if (profileImageUrl.startsWith('http')) return profileImageUrl;
+    return `${serverBaseUrl}${profileImageUrl}`;
   }
 };

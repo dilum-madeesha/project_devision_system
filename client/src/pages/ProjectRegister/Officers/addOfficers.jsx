@@ -125,11 +125,11 @@ const AddOfficerPage = () => {
         {/* Card */}
         <Box bg={bg} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={borderColor}>
           {/* Card Header */}
-          <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
+          {/* <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
             <Heading size="md" color="blue.600" fontWeight="bold">
               Add New Officer
             </Heading>
-          </Box>
+          </Box> */}
 
           {/* Card Body */}
           <Box p={6}>
@@ -153,6 +153,7 @@ const AddOfficerPage = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
+                  placeholder="Enter full name"
                   borderColor={borderColor}
                 />
               </FormControl>
@@ -166,6 +167,7 @@ const AddOfficerPage = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      placeholder="Enter email"
                       borderColor={borderColor}
                     />
                   </FormControl>
@@ -178,6 +180,7 @@ const AddOfficerPage = () => {
                       name="contactNumber"
                       value={formData.contactNumber}
                       onChange={handleChange}
+                      placeholder="Enter contact number"
                       borderColor={borderColor}
                     />
                   </FormControl>

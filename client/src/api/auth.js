@@ -1,5 +1,7 @@
 import api from './config.js';
 
+const serverBaseUrl = (api.defaults.baseURL || '').replace(/\/api\/?$/, '');
+
 export const authAPI = {
   login: async (credentials) => {
     try {
@@ -80,5 +82,33 @@ export const authAPI = {
       console.error('Change Password API Error:', error);
       throw error;
     }
-  }
+  },
+
+  uploadProfileImage: async (imageFile) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      const response = await api.post('/auth/profile/image', formData);
+      return response.data;
+    } catch (error) {
+      console.error('Upload Profile Image API Error:', error);
+      throw error;
+    }
+  },
+
+  deleteProfileImage: async () => {
+    try {
+      const response = await api.delete('/auth/profile/image');
+      return response.data;
+    } catch (error) {
+      console.error('Delete Profile Image API Error:', error);
+      throw error;
+    }
+  },
+
+  toImageSrc: (profileImageUrl) => {
+    if (!profileImageUrl) return null;
+    if (profileImageUrl.startsWith('http')) return profileImageUrl;
+    return `${serverBaseUrl}${profileImageUrl}`;
+  },
 };

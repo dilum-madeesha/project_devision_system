@@ -145,11 +145,11 @@ export default function AddContractor() {
 
       <Box bg={bg} border="1px solid" borderColor={borderColor} borderRadius="lg" boxShadow="md">
         {/* Card Header */}
-        <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
+        {/* <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
           <Heading size="md" color="purple.600" fontWeight="bold">
             Add Contractor
           </Heading>
-        </Box>
+        </Box> */}
 
         {/* Card Body */}
         <Box p={6}>
@@ -159,14 +159,14 @@ export default function AddContractor() {
               <GridItem>
                 <FormControl isRequired>
                   <FormLabel>Company Name</FormLabel>
-                  <Input name="companyName" value={formData.companyName} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="companyName" value={formData.companyName} placeholder="Enter company name" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
 
               <GridItem>
                 <FormControl isRequired>
                   <FormLabel>Register Number</FormLabel>
-                  <Input name="registrationNo" value={formData.registrationNo} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="registrationNo" value={formData.registrationNo} placeholder="Enter registration number" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
             </Grid>
@@ -175,14 +175,14 @@ export default function AddContractor() {
               <GridItem>
                 <FormControl isRequired>
                   <FormLabel>Contact Number</FormLabel>
-                  <Input name="phone" value={formData.phone} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="phone" value={formData.phone} placeholder="Enter contact number" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
 
               <GridItem>
                 <FormControl>
                   <FormLabel>Company Email</FormLabel>
-                  <Input name="email" value={formData.email} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="email" value={formData.email} placeholder="Enter company email" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
             </Grid>
@@ -191,14 +191,14 @@ export default function AddContractor() {
               <GridItem>
                 <FormControl>
                   <FormLabel>Company Address</FormLabel>
-                  <Input name="address" value={formData.address} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="address" value={formData.address} placeholder="Enter company address" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
 
               <GridItem>
                 <FormControl isRequired>
                   <FormLabel>Person in Charge</FormLabel>
-                  <Input name="contactPerson" value={formData.contactPerson} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="contactPerson" value={formData.contactPerson} placeholder="Enter person in charge" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
             </Grid>
@@ -207,14 +207,14 @@ export default function AddContractor() {
               <GridItem>
                 <FormControl>
                   <FormLabel>Specialization</FormLabel>
-                  <Input name="specialization" value={formData.specialization} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="specialization" value={formData.specialization} placeholder="Enter specialization" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
 
               <GridItem>
                 <FormControl>
                   <FormLabel>Experience Years</FormLabel>
-                  <Input name="experienceYears" value={formData.experienceYears} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="experienceYears" value={formData.experienceYears} placeholder="Enter experience years" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
             </Grid>
@@ -223,7 +223,7 @@ export default function AddContractor() {
               <GridItem>
                 <FormControl>
                   <FormLabel>Branches</FormLabel>
-                  <Input name="branches" value={formData.branches} onChange={handleChange} borderColor={borderColor} />
+                  <Input name="branches" value={formData.branches} placeholder="Enter branches" onChange={handleChange} borderColor={borderColor} />
                 </FormControl>
               </GridItem>
 
@@ -240,7 +240,7 @@ export default function AddContractor() {
 
             <FormControl>
               <FormLabel>Description</FormLabel>
-              <Textarea name="description" value={formData.description} onChange={handleChange} borderColor={borderColor} />
+              <Textarea name="description" value={formData.description} placeholder="Enter description" onChange={handleChange} borderColor={borderColor} />
             </FormControl>
 
             <Flex gap={4}>

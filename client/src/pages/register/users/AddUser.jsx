@@ -24,8 +24,10 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Avatar,
+  Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { userAPI } from "../../../api";
@@ -36,6 +38,9 @@ const AddUserPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState("");
+  const fileInputRef = useRef(null);
   const bg = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
 
@@ -76,6 +81,25 @@ const AddUserPage = () => {
 
       const result = await userAPI.create(payload);
 
+      const createdUserId =
+        result?.data?.id ||
+        result?.data?.data?.id ||
+        result?.id;
+
+      if (profileImageFile && createdUserId) {
+        try {
+          await userAPI.uploadImage(createdUserId, profileImageFile);
+        } catch (uploadError) {
+          toast({
+            title: "User created",
+            description: "User was created, but profile image upload failed.",
+            status: "warning",
+            duration: 4000,
+            isClosable: true,
+          });
+        }
+      }
+
       toast({
         title: "Success",
         description: "User created successfully",
@@ -89,6 +113,36 @@ const AddUserPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file",
+        description: "Please select an image file.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Image too large",
+        description: "Profile image must be 5MB or smaller.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setProfileImageFile(file);
+    setProfileImagePreview(URL.createObjectURL(file));
   };
 
   return (
@@ -123,6 +177,8 @@ const AddUserPage = () => {
         <Box bg={bg} borderWidth="1px" borderColor={borderColor} borderRadius="lg" p={6}>
           <form onSubmit={handleSubmit}>
             <VStack spacing={4}>
+
+              
 
               {/* Username and Email */}
               <HStack spacing={4} w="full">
@@ -205,6 +261,29 @@ const AddUserPage = () => {
                 </FormControl>
               </HStack>
 
+              {/* <HStack spacing={4} w="full" align="center">
+                <Avatar
+                  size="lg"
+                  name={`${formData.firstName} ${formData.lastName}`}
+                  src={profileImagePreview || undefined}
+                />
+                <VStack align="start" spacing={2} w="full">
+                  <FormControl>
+                    <FormLabel mb={1}>Profile Image (Optional)</FormLabel>
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                      p={1}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      JPG, PNG, or WebP. Max 5MB.
+                    </Text>
+                  </FormControl>
+                </VStack>
+              </HStack> */}
+
               {/* Division and Role */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
@@ -277,6 +356,28 @@ const AddUserPage = () => {
                     <option value={false}>Inactive</option>
                   </Select>
                 </FormControl>
+              </HStack>
+               <HStack spacing={4} w="full" align="center">
+                <Avatar
+                  size="lg"
+                  name={`${formData.firstName} ${formData.lastName}`}
+                  src={profileImagePreview || undefined}
+                />
+                <VStack align="start" spacing={2} w="full">
+                  <FormControl>
+                    <FormLabel mb={1}>Profile Image (Optional)</FormLabel>
+                    <Input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                      p={1}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      JPG, PNG, or WebP. Max 5MB.
+                    </Text>
+                  </FormControl>
+                </VStack>
               </HStack>
 
               {/* Submit Buttons */}

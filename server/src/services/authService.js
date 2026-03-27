@@ -1,9 +1,57 @@
 import prisma from '../config/database.js';
 import bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 import { hashPassword, generateTokens, comparePassword, verifyRefreshToken } from '../utils/auth.js';
 import { validateRegistration, validateLogin } from '../utils/validators.js';
+import cloudinary from '../config/cloudinary.js';
+import { USER_IMAGES_DIR, ensureUserImagesDir, deleteUserImageFiles } from '../utils/userImage.js';
+
+const isCloudinaryConfigured = () =>
+  !!(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
+
+const uploadBufferToCloudinary = (fileBuffer, folder) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'image',
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+
+const getImageExtension = (file) => {
+  const mimeType = file?.mimetype || '';
+
+  if (mimeType === 'image/jpeg' || mimeType === 'image/jpg') return 'jpg';
+  if (mimeType === 'image/png') return 'png';
+  if (mimeType === 'image/webp') return 'webp';
+  if (mimeType === 'image/gif') return 'gif';
+
+  const originalName = file?.originalname || '';
+  const ext = path.extname(originalName).replace('.', '').toLowerCase();
+  return ext || 'jpg';
+};
 
 class AuthService {
+  static attachProfileImage(user) {
+    if (!user) return null;
+    return user;
+  }
+
+  static attachProfileImageToMany(users = []) {
+    return users.map((user) => this.attachProfileImage(user));
+  }
+
   // Register new user
   static async register(userData) {
     // Validate input
@@ -64,6 +112,7 @@ class AuthService {
         role: true,
         isActive: true,
         privilege: true,
+        profileImageUrl: true,
         createdAt: true
       }
     });
@@ -72,7 +121,7 @@ class AuthService {
     const tokens = generateTokens(user);
 
     return {
-      user,
+      user: this.attachProfileImage(user),
       tokens
     };
   }
@@ -131,7 +180,7 @@ class AuthService {
     const tokens = generateTokens(userWithoutPassword);
 
     return {
-      user: userWithoutPassword,
+      user: this.attachProfileImage(userWithoutPassword),
       tokens
     };
   }
@@ -151,7 +200,8 @@ class AuthService {
           lastName: true,
           role: true,
           privilege: true,
-          isActive: true
+          isActive: true,
+          profileImageUrl: true,
         }
       });
 
@@ -162,7 +212,7 @@ class AuthService {
       const tokens = generateTokens(user);
       
       return {
-        user,
+        user: this.attachProfileImage(user),
         tokens
       };
     } catch (error) {
@@ -185,6 +235,7 @@ class AuthService {
         role: true,
         privilege: true,
         isActive: true,
+        profileImageUrl: true,
         createdAt: true,
         lastLogin: true
       }
@@ -194,7 +245,7 @@ class AuthService {
       throw new Error('User not found');
     }
 
-    return user;
+    return this.attachProfileImage(user);
   }
 
   // Update user profile
@@ -252,10 +303,11 @@ class AuthService {
         role: true,
         isActive: true,
         privilege: true,
+        profileImageUrl: true,
         updatedAt: true
       }
     });
-    return user;
+    return this.attachProfileImage(user);
   }
 
   // Change password
@@ -329,6 +381,7 @@ class AuthService {
           role: true,
           privilege: true,
           isActive: true,
+          profileImageUrl: true,
           createdAt: true,
           lastLogin: true
         },
@@ -340,7 +393,7 @@ class AuthService {
     ]);
 
     return {
-      users,
+      users: this.attachProfileImageToMany(users),
       pagination: {
         page,
         limit,
@@ -369,11 +422,12 @@ class AuthService {
         role: true,
         privilege: true,
         isActive: true,
+        profileImageUrl: true,
         updatedAt: true
       }
     });
 
-    return user;
+    return this.attachProfileImage(user);
   }
 
   // Update user (Admin/Manager only)
@@ -441,12 +495,119 @@ class AuthService {
         role: true,
         privilege: true,
         isActive: true,
+        profileImageUrl: true,
         createdAt: true,
         updatedAt: true
       }
     });
 
-    return user;
+    return this.attachProfileImage(user);
+  }
+
+  static async uploadUserProfileImage(userId, file) {
+    const parsedUserId = parseInt(userId, 10);
+
+    if (!Number.isFinite(parsedUserId)) {
+      throw new Error('Invalid user ID');
+    }
+
+    if (!file?.buffer) {
+      throw new Error('No image file uploaded');
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: parsedUserId },
+      select: { id: true, profileImagePublicId: true },
+    });
+
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    if (isCloudinaryConfigured()) {
+      if (existingUser.profileImagePublicId) {
+        try {
+          await cloudinary.uploader.destroy(existingUser.profileImagePublicId);
+        } catch (err) {
+          console.error('Cloudinary delete existing profile image failed:', err?.message || err);
+        }
+      }
+
+      if (existingUser.profileImageUrl?.startsWith('/uploads/user-images/')) {
+        deleteUserImageFiles(parsedUserId);
+      }
+
+      const uploaded = await uploadBufferToCloudinary(file.buffer, 'cost-tracking/users');
+
+      await prisma.user.update({
+        where: { id: parsedUserId },
+        data: {
+          profileImageUrl: uploaded.secure_url,
+          profileImagePublicId: uploaded.public_id,
+          updatedAt: new Date(),
+        },
+      });
+    } else {
+      ensureUserImagesDir();
+      deleteUserImageFiles(parsedUserId);
+
+      const fileExtension = getImageExtension(file);
+      const filename = `${parsedUserId}.${Date.now()}.${fileExtension}`;
+      const destinationPath = path.join(USER_IMAGES_DIR, filename);
+
+      fs.writeFileSync(destinationPath, file.buffer);
+
+      await prisma.user.update({
+        where: { id: parsedUserId },
+        data: {
+          profileImageUrl: `/uploads/user-images/${filename}`,
+          profileImagePublicId: null,
+          updatedAt: new Date(),
+        },
+      });
+    }
+
+    return this.getProfile(parsedUserId);
+  }
+
+  static async deleteUserProfileImage(userId) {
+    const parsedUserId = parseInt(userId, 10);
+
+    if (!Number.isFinite(parsedUserId)) {
+      throw new Error('Invalid user ID');
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id: parsedUserId },
+      select: { id: true, profileImagePublicId: true },
+    });
+
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    if (existingUser.profileImagePublicId && isCloudinaryConfigured()) {
+      try {
+        await cloudinary.uploader.destroy(existingUser.profileImagePublicId);
+      } catch (err) {
+        console.error('Cloudinary delete profile image failed:', err?.message || err);
+      }
+    }
+
+    if (existingUser.profileImageUrl?.startsWith('/uploads/user-images/')) {
+      deleteUserImageFiles(parsedUserId);
+    }
+
+    await prisma.user.update({
+      where: { id: parsedUserId },
+      data: {
+        profileImageUrl: null,
+        profileImagePublicId: null,
+        updatedAt: new Date(),
+      },
+    });
+
+    return this.getProfile(parsedUserId);
   }
 
   // Delete user (Admin only)
@@ -467,6 +628,14 @@ class AuthService {
 
     if (!existingUser) {
       throw new Error('User not found');
+    }
+
+    if (existingUser.profileImagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(existingUser.profileImagePublicId);
+      } catch (err) {
+        console.error('Cloudinary delete on user remove failed:', err?.message || err);
+      }
     }
 
     // Check if user has any related data

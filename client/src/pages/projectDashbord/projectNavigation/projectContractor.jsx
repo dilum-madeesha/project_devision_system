@@ -121,7 +121,7 @@ export default function ProjectContractor() {
                 <Table variant="simple" size="sm">
                     <Thead bg="gray.50">
                         <Tr>
-                            <Th>#</Th>
+                            <Th>No</Th>
                             <Th>Company Name</Th>
                             <Th>Contact Person</Th>
                             <Th>Reg No</Th>

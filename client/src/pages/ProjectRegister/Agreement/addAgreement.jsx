@@ -152,11 +152,11 @@ const AddAgreement = () => {
                     boxShadow="md"
                 >
                     {/* Card Header */}
-                    <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
+                    {/* <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
                         <Heading size="md" color="green.600" fontWeight="bold">
                             New Agreement
                         </Heading>
-                    </Box>
+                    </Box> */}
 
                     {/* Card Body */}
                     <Box p={6}>

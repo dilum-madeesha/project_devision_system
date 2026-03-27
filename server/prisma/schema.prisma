@@ -22,6 +22,8 @@ model User {
   updatedAt       DateTime @updatedAt
   lastLogin       DateTime?
   privilege       Int      @default(5)
+  profileImageUrl      String?
+  profileImagePublicId String?
 
   // Relations
   createdJobs            Job[]              @relation("JobCreator")

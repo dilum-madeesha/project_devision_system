@@ -24,7 +24,7 @@ import {
   Avatar,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { Search, Users, UserCheck, Briefcase, Phone, Mail, MapPin } from "lucide-react";
+import { Search, Users, UserCheck, Briefcase, Phone, Mail } from "lucide-react";
 import { officerAPI } from "../../../api";
 
 export default function ProjectOfficer() {
@@ -46,14 +46,32 @@ export default function ProjectOfficer() {
       setLoading(true);
       const response = await officerAPI.getAll();
       let officersList = [];
-      if (response?.data?.officers) {
+      if (response?.data?.officers && Array.isArray(response.data.officers)) {
         officersList = response.data.officers;
-      } else if (response?.data) {
-        officersList = Array.isArray(response.data) ? response.data : [];
+      } else if (response?.officers && Array.isArray(response.officers)) {
+        officersList = response.officers;
+      } else if (response?.data && Array.isArray(response.data)) {
+        officersList = response.data;
       } else if (Array.isArray(response)) {
         officersList = response;
       }
-      setOfficers(officersList);
+
+      // Normalize fields used across screens so dashboard renders consistently.
+      const normalizedOfficers = officersList.map((officer) => ({
+        ...officer,
+        name:
+          officer.name ||
+          officer.fullName ||
+          `${officer.firstName || ""} ${officer.lastName || ""}`.trim() ||
+          "N/A",
+        phone: officer.phone || officer.contactNumber || "",
+        status:
+          typeof officer.status === "boolean"
+            ? officer.status
+            : officer.isActive ?? true,
+      }));
+
+      setOfficers(normalizedOfficers);
       setError(null);
     } catch (err) {
       console.error("Error fetching officers:", err);

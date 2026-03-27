@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -31,9 +31,10 @@ import {
   useColorModeValue,
   InputGroup,
   InputRightElement,
-  IconButton
+  IconButton,
+  Avatar,
 } from '@chakra-ui/react';
-import { FiEdit2, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEdit2, FiEye, FiEyeOff, FiTrash2, FiUpload } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { authAPI } from '../../api';
 import { getPrivilegeLevelName } from '../../utils/permissions';
@@ -46,7 +47,7 @@ const ProfilePage = () => {
   // UI colors
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const cardBg = useColorModeValue('gray.50', 'gray.700');
+  const cardBg = useColorModeValue('gray.50', 'gray.750');
   
   // Form state
   const [editData, setEditData] = useState({
@@ -62,6 +63,8 @@ const ProfilePage = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const fileInputRef = useRef(null);
   
   // Initialize form data when user changes
   useEffect(() => {
@@ -204,6 +207,94 @@ const ProfilePage = () => {
       default: return 'gray';
     }
   };
+
+  const profileImageSrc = authAPI.toImageSrc(user?.profileImageUrl);
+
+  const handleSelectProfileImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleProfileImageChange = async (event) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please select an image file.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (selectedFile.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Image too large',
+        description: 'Profile image must be 5MB or smaller.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setImageLoading(true);
+    try {
+      const response = await authAPI.uploadProfileImage(selectedFile);
+      if (response?.data && updateUser) {
+        updateUser(response.data);
+      }
+
+      toast({
+        title: 'Image updated',
+        description: 'Your profile picture was updated successfully.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: 'Upload failed',
+        description: error.response?.data?.message || 'Failed to upload profile image.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+    } finally {
+      setImageLoading(false);
+      event.target.value = '';
+    }
+  };
+
+  const handleDeleteProfileImage = async () => {
+    setImageLoading(true);
+    try {
+      const response = await authAPI.deleteProfileImage();
+      if (response?.data && updateUser) {
+        updateUser(response.data);
+      }
+
+      toast({
+        title: 'Image removed',
+        description: 'Your profile picture was deleted.',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: 'Delete failed',
+        description: error.response?.data?.message || 'Failed to delete profile image.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+    } finally {
+      setImageLoading(false);
+    }
+  };
   
   // Get privilege color
   const getPrivilegeColor = (privilege) => {
@@ -230,23 +321,15 @@ const ProfilePage = () => {
   }
   
   return (
-    <Container maxW="800px" py={8}>
+    <Container maxW="960px" py={8}>
       <VStack spacing={6} align="stretch">
-        {/* Page Header */}
-        <Box>
-          <Heading size="lg" mb={2}>User Profile</Heading>
-          <Text color="gray.600">View and manage your profile information</Text>
-        </Box>
-        
         {/* Profile Card */}
-        <Card bg={bg} borderColor={borderColor}>
-          <CardBody>
-            <VStack spacing={6} align="stretch">
-              {/* Header with Edit Button */}
-              <HStack justify="space-between" align="start">
-                <VStack align="start" spacing={1}>
-                  <Heading size="md">{user.firstName} {user.lastName}</Heading>
-                </VStack>
+        <Card bg={bg} borderColor={borderColor} borderWidth="1px" borderRadius="xl" overflow="hidden">
+          <CardBody bg={cardBg}>
+            <VStack spacing={5} align="stretch">
+              {/* Header with name and edit action */}
+              <HStack justify="space-between" align="center" flexWrap="wrap" gap={3}>
+                <Heading size="md">{user.firstName} {user.lastName}</Heading>
                 <Button
                   leftIcon={<FiEdit2 />}
                   colorScheme="blue"
@@ -256,97 +339,109 @@ const ProfilePage = () => {
                   Edit Profile
                 </Button>
               </HStack>
-              
-              <Divider />
-              
-              {/* Profile Information */}
-              <VStack spacing={3} align="stretch">
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    First Name :
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.firstName}
-                  </Text>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Last Name :
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.lastName}
-                  </Text>
-                </HStack>
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Username:
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.username}
-                  </Text>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Email :
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.email}
-                  </Text>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    EPF Number :
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.epfNumber}
-                  </Text>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Division :
-                  </Text>
-                  <Text fontSize="md" flex="1" textAlign="left" ml={4}>
-                    {user.division}
-                  </Text>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Role :
-                  </Text>
-                  <HStack flex="1" ml={4}>
-                    <Badge colorScheme={getRoleColor(user.role)}>
+
+              <Divider borderColor={borderColor} />
+
+              {/* Main content area: details left and image/actions right */}
+              <HStack
+                align="start"
+                spacing={8}
+                flexDirection={{ base: 'column', md: 'row' }}
+              >
+                <VStack spacing={3} align="stretch" flex="1" w="full">
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">First Name</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.firstName}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Last Name</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.lastName}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Username</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.username}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Email</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.email}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">EPF Number</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.epfNumber}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Division</Text>
+                    <Text fontSize="md" fontWeight="semibold">{user.division}</Text>
+                  </HStack>
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Role</Text>
+                    <Badge colorScheme={getRoleColor(user.role)} borderRadius="full" px={3} py={1}>
                       {user.role}
                     </Badge>
                   </HStack>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Privilege Level :
-                  </Text>
-                  <HStack flex="1" ml={4}>
-                    <Badge colorScheme={getPrivilegeColor(user.privilege)} variant="subtle">
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Privilege</Text>
+                    <Badge colorScheme={getPrivilegeColor(user.privilege)} variant="subtle" borderRadius="full" px={3} py={1}>
                       {getPrivilegeLevelName(user.privilege)}
                     </Badge>
                   </HStack>
-                </HStack>
-                
-                <HStack justify="space-between" align="center">
-                  <Text fontSize="sm" fontWeight="medium" color="gray.500" minW="100px">
-                    Status :
-                  </Text>
-                  <HStack flex="1" ml={4}>
-                    <Badge colorScheme={user.isActive ? 'green' : 'red'} size="sm">
+
+                  <HStack align="start" spacing={4}>
+                    <Text fontSize="sm" fontWeight="semibold" color="gray.500" minW="120px">Status</Text>
+                    <Badge colorScheme={user.isActive ? 'green' : 'red'} borderRadius="full" px={3} py={1}>
                       {user.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </HStack>
-                </HStack>
-              </VStack>
+                </VStack>
+
+                <VStack align="center" spacing={3} w={{ base: 'full', md: '220px' }}>
+                  <Avatar
+                    size="2xl"
+                    name={`${user.firstName} ${user.lastName}`}
+                    src={profileImageSrc || undefined}
+                  />
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    leftIcon={<FiUpload />}
+                    onClick={handleSelectProfileImage}
+                    isLoading={imageLoading}
+                    loadingText="Uploading"
+                    w="full"
+                  >
+                    {profileImageSrc ? 'Replace Picture' : 'Add Picture'}
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorScheme="red"
+                    leftIcon={<FiTrash2 />}
+                    onClick={handleDeleteProfileImage}
+                    isDisabled={!profileImageSrc || imageLoading}
+                    isLoading={imageLoading}
+                    w="full"
+                  >
+                    Delete Picture
+                  </Button>
+
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfileImageChange}
+                    display="none"
+                  />
+                </VStack>
+              </HStack>
             </VStack>
           </CardBody>
         </Card>
