@@ -134,7 +134,8 @@ export const projectAPI = {
   // Delete project image
   deleteImage: async (projectId, imageFilename) => {
     try {
-      const response = await api.delete(`/projects/${projectId}/images/${imageFilename}`);
+      const encodedFilename = encodeURIComponent(imageFilename);
+      const response = await api.delete(`/projects/${projectId}/images/${encodedFilename}`);
       return response.data;
     } catch (error) {
       console.error('Delete Project Image API Error:', error);

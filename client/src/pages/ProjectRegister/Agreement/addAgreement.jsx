@@ -18,6 +18,9 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     Select,
+    Grid,
+    GridItem,
+    Flex,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -31,6 +34,8 @@ const AddAgreement = () => {
 
     const bg = useColorModeValue("white", "gray.800");
     const borderColor = useColorModeValue("gray.200", "gray.700");
+    const headerBg = useColorModeValue("#dcfce7", "gray.700");
+    const textColor = useColorModeValue("gray.600", "gray.400");
 
     const [formData, setFormData] = useState({
         agreementNo: "",
@@ -112,18 +117,18 @@ const AddAgreement = () => {
                 {/* Breadcrumb */}
                 <Breadcrumb fontSize="sm" color="gray.600" mb={0.1} py={0.2}>
                     <BreadcrumbItem>
-                        <BreadcrumbLink as={Link} to="/projectregister" color="blue.500">
+                        <BreadcrumbLink as={Link} to="/projectregister" color="green.500">
                             Register
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbItem>
-                        <BreadcrumbLink as={Link} to="/projectregister/agreements" color="blue.500">
+                        <BreadcrumbLink as={Link} to="/projectregister/agreements" color="green.500">
                             Project Agreements
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbItem isCurrentPage>
                         <BreadcrumbLink
-                            color="blue.500"
+                            color="green.500"
                             fontWeight="bold"
                             fontSize="x-large"
                         >
@@ -144,10 +149,19 @@ const AddAgreement = () => {
                     borderWidth="1px"
                     borderColor={borderColor}
                     borderRadius="lg"
-                    p={6}
+                    boxShadow="md"
                 >
+                    {/* Card Header */}
+                    <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
+                        <Heading size="md" color="green.600" fontWeight="bold">
+                            New Agreement
+                        </Heading>
+                    </Box>
+
+                    {/* Card Body */}
+                    <Box p={6}>
                     <form onSubmit={handleSubmit}>
-                        <VStack spacing={4}>
+                        <VStack spacing={6}>
                             {/* Agreement No */}
                             <FormControl isRequired>
                                 <FormLabel>Agreement No</FormLabel>
@@ -156,6 +170,7 @@ const AddAgreement = () => {
                                     value={formData.agreementNo}
                                     onChange={handleChange}
                                     placeholder="Enter agreement number (e.g., AGR-001)"
+                                    borderColor={borderColor}
                                 />
                             </FormControl>
 
@@ -167,6 +182,7 @@ const AddAgreement = () => {
                                     value={formData.agreementID}
                                     onChange={handleChange}
                                     placeholder="Enter agreement ID"
+                                    borderColor={borderColor}
                                 />
                             </FormControl>
 
@@ -178,41 +194,46 @@ const AddAgreement = () => {
                                     value={formData.projectName}
                                     onChange={handleChange}
                                     placeholder="Enter project name"
+                                    borderColor={borderColor}
                                 />
                             </FormControl>
 
                             {/* Agreement Sum + VAT */}
-                            <HStack spacing={4} w="full">
-                                <FormControl isRequired>
-                                    <FormLabel>Agreement Sum (Rs.)</FormLabel>
-                                    <NumberInput
-                                        min={0}
-                                        precision={2}
-                                        value={formData.agreementSum}
-                                        onChange={(valueAsString) =>
-                                            handleNumberChange("agreementSum", valueAsString)
-                                        }
-                                    >
-                                        <NumberInputField placeholder="Enter agreement sum" />
-                                    </NumberInput>
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>VAT (%)</FormLabel>
-                                    <NumberInput
-                                        min={0}
-                                        precision={2}
-                                        value={formData.vat}
-                                        onChange={(valueAsString) =>
-                                            handleNumberChange("vat", valueAsString)
-                                        }
-                                    >
-                                        <NumberInputField placeholder="Enter VAT percentage" />
-                                    </NumberInput>
-                                </FormControl>
-                            </HStack>
+                            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
+                                <GridItem>
+                                    <FormControl isRequired>
+                                        <FormLabel>Agreement Sum (Rs.)</FormLabel>
+                                        <NumberInput
+                                            min={0}
+                                            precision={2}
+                                            value={formData.agreementSum}
+                                            onChange={(valueAsString) =>
+                                                handleNumberChange("agreementSum", valueAsString)
+                                            }
+                                        >
+                                            <NumberInputField placeholder="Enter agreement sum" borderColor={borderColor} />
+                                        </NumberInput>
+                                    </FormControl>
+                                </GridItem>
+                                <GridItem>
+                                    <FormControl>
+                                        <FormLabel>VAT (%)</FormLabel>
+                                        <NumberInput
+                                            min={0}
+                                            precision={2}
+                                            value={formData.vat}
+                                            onChange={(valueAsString) =>
+                                                handleNumberChange("vat", valueAsString)
+                                            }
+                                        >
+                                            <NumberInputField placeholder="Enter VAT percentage" borderColor={borderColor} />
+                                        </NumberInput>
+                                    </FormControl>
+                                </GridItem>
+                            </Grid>
 
                             {/* Period Days */}
-                            <FormControl>
+                            <FormControl w="full">
                                 <FormLabel>Period (days)</FormLabel>
                                 <NumberInput
                                     min={0}
@@ -221,48 +242,56 @@ const AddAgreement = () => {
                                         handleNumberChange("periodDays", valueAsString)
                                     }
                                 >
-                                    <NumberInputField placeholder="Enter period in days" />
+                                    <NumberInputField placeholder="Enter period in days" borderColor={borderColor} />
                                 </NumberInput>
                             </FormControl>
 
                             {/* Dates */}
-                            <HStack spacing={4} w="full">
-                                <FormControl>
-                                    <FormLabel>Award Date</FormLabel>
-                                    <Input
-                                        type="date"
-                                        name="awardDate"
-                                        value={formData.awardDate}
-                                        onChange={handleChange}
-                                    />
-                                </FormControl>
-                                <FormControl>
-                                    <FormLabel>Start Date</FormLabel>
-                                    <Input
-                                        type="date"
-                                        name="startDate"
-                                        value={formData.startDate}
-                                        onChange={handleChange}
-                                    />
-                                </FormControl>
-                            </HStack>
+                            <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
+                                <GridItem>
+                                    <FormControl>
+                                        <FormLabel>Award Date</FormLabel>
+                                        <Input
+                                            type="date"
+                                            name="awardDate"
+                                            value={formData.awardDate}
+                                            onChange={handleChange}
+                                            borderColor={borderColor}
+                                        />
+                                    </FormControl>
+                                </GridItem>
+                                <GridItem>
+                                    <FormControl>
+                                        <FormLabel>Start Date</FormLabel>
+                                        <Input
+                                            type="date"
+                                            name="startDate"
+                                            value={formData.startDate}
+                                            onChange={handleChange}
+                                            borderColor={borderColor}
+                                        />
+                                    </FormControl>
+                                </GridItem>
+                            </Grid>
 
-                            <FormControl>
+                            <FormControl w="full">
                                 <FormLabel>Completion Date</FormLabel>
                                 <Input
                                     type="date"
                                     name="completionDate"
                                     value={formData.completionDate}
                                     onChange={handleChange}
+                                    borderColor={borderColor}
                                 />
                             </FormControl>
                             {/* Status Field */}
-                            <FormControl>
+                            <FormControl w="full">
                                 <FormLabel>Status</FormLabel>
                                 <Select
                                     name="status"
                                     value={formData.status}
                                     onChange={handleChange}
+                                    borderColor={borderColor}
                                 >
                                     <option value="ACTIVE">Active</option>
                                     <option value="PENDING">Pending</option>
@@ -272,10 +301,10 @@ const AddAgreement = () => {
                             </FormControl>
 
                             {/* Buttons */}
-                            <HStack spacing={4} w="full" pt={4}>
+                            <Flex gap={4} w="full" pt={4}>
                                 <Button
                                     type="submit"
-                                    colorScheme="blue"
+                                    colorScheme="green"
                                     isLoading={loading}
                                     loadingText="Creating..."
                                     flex={1}
@@ -287,9 +316,10 @@ const AddAgreement = () => {
                                         Cancel
                                     </Button>
                                 </Link>
-                            </HStack>
+                            </Flex>
                         </VStack>
                     </form>
+                    </Box>
                 </Box>
             </VStack>
         </Container>

@@ -48,7 +48,7 @@ const RegisterPage = () => {
       description: "Add new Contractors and manage contractor information",
       icon: FiPackage,
       path: "/projectregister/contractors",
-      color: "orange",
+      color: "purple",
       registerType: "materials",
     }
   ];

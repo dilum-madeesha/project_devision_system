@@ -42,14 +42,16 @@ import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { FiUser, FiCalendar, FiCheckSquare, FiX, FiCamera, FiBriefcase, FiAlertCircle } from "react-icons/fi";
 
 const activities = [
-  { id: 1, icon: "📦", action: "Planning & Feasibility", other: "Identify the need, Budget estimation, Site selection, Feasibility study, Initial drawings & concept design." },
-  { id: 2, icon: "✅", action: "Design & Documentation", other: "Architectural design, Structural design, Electrical & plumbing design, BOQ, Authority approvals." },
-  { id: 3, icon: "👤", action: "Tendering & Contracting", other: "Prepare tender documents, Invite contractors, Evaluate bids, Select contractor, Sign contract agreement." },
-  { id: 4, icon: "💬", action: "Construction", other: "Foundation work, Superstructure, Roofing, Electrical & plumbing, Finishing." },
-  { id: 5, icon: "📊", action: "Monitoring & Quality Control", other: "Site supervision, Quality checks, Safety, Progress & cost control." },
-  { id: 6, icon: "📊", action: "Testing & Commissioning", other: "Electrical testing, Plumbing pressure testing, Final inspections." },
-  { id: 7, icon: "📊", action: "Handover & Completion", other: "Snag list, Client handover, Occupancy certificate, Final payment." },
-  { id: 8, icon: "📊", action: "Maintenance", other: "Defect liability period, Repairs, Regular maintenance." },
+  { id: 1, icon: "📝", action: "Feasibility Study", other: "Assess project viability, technical feasibility, economic analysis, risk assessment." },
+  { id: 2, icon: "📋", action: "Requirement Analysis", other: "Gather and document project requirements, stakeholder analysis, functional specifications." },
+  { id: 3, icon: "📐", action: "Planning and Design", other: "Develop project plans, architectural design, technical specifications, resource planning." },
+  { id: 4, icon: "💰", action: "Budgeting and Cost Estimation", other: "Prepare detailed budget, cost breakdown, financial planning, funding arrangements." },
+  { id: 5, icon: "🛒", action: "Procurement", other: "Tendering process, vendor selection, contract negotiations, material procurement." },
+  { id: 6, icon: "🏗️", action: "Execution and Quality Control", other: "Project implementation, construction work, quality assurance, progress monitoring." },
+  { id: 7, icon: "📊", action: "Monitoring and Evaluation", other: "Performance tracking, milestone reviews, risk monitoring, progress evaluation." },
+  { id: 8, icon: "🔧", action: "Testing and Commissioning", other: "System testing, commissioning activities, final inspections, performance verification." },
+  { id: 9, icon: "🎉", action: "Handover", other: "Project handover, documentation delivery, training, final acceptance." },
+  { id: 10, icon: "🛠️", action: "Maintenance", other: "Post-handover support, warranty management, ongoing maintenance, defect resolution." },
 ];
 
 export default function ProjectSetup() {

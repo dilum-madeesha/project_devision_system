@@ -189,14 +189,14 @@ export default function ContractorListPage() {
         <Container maxW="1300px" py={2}>
             <VStack spacing={2} align="stretch">
                 {/* Breadcrumb */}
-                <Breadcrumb fontSize="sm" color="gray.600" mb={0.1} py={0.2}>
+                <Breadcrumb fontSize="sm" color="purple.600" mb={0.1} py={0.2}>
                     <BreadcrumbItem>
-                        <BreadcrumbLink as={Link} to="/projectregister" color="orange.500">
+                        <BreadcrumbLink as={Link} to="/projectregister" color="purple.500">
                             Register
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbItem isCurrentPage>
-                        <BreadcrumbLink color="orange.500" fontWeight="bold" fontSize="medium">
+                        <BreadcrumbLink color="purple.500" fontWeight="bold" fontSize="medium">
                             Contractors
                         </BreadcrumbLink>
                     </BreadcrumbItem>
@@ -208,7 +208,7 @@ export default function ContractorListPage() {
                         <Text color="gray.600" fontSize="x-large">Contractors List</Text>
                     </Box>
                     <Link to="/projectRegister/contractors/add">
-                        <Button leftIcon={<FiPlus />} colorScheme="orange">
+                        <Button leftIcon={<FiPlus />} colorScheme="purple">
                             Add Contractor
                         </Button>
                     </Link>
@@ -257,7 +257,7 @@ export default function ContractorListPage() {
                 <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
                     <TableContainer>
                         <Table variant="simple" size="sm">
-                            <Thead bg="orange.50">
+                            <Thead bg="purple.50">
                                 <Tr>
                                     <Th>Company</Th>
                                     <Th>Contact</Th>
@@ -277,7 +277,7 @@ export default function ContractorListPage() {
                                     <Tr key={c.id}>
                                         <Td>{c.companyName}</Td>
                                         <Td>{c.contactPerson}</Td>
-                                        <Td color="orange.500">{c.email}</Td>
+                                        <Td color="purple.500">{c.email}</Td>
                                         <Td>{c.phone}</Td>
                                         <Td>{c.registrationNo}</Td>
                                         <Td>{c.specialization}</Td>
@@ -322,7 +322,7 @@ export default function ContractorListPage() {
                   </Text>
                   {canEdit && (
                     <Link to="/projectregister/contractors/add">
-                      <Button colorScheme="orange">
+                      <Button colorScheme="purple">
                         Add Your First Contractor
                       </Button>
                     </Link>
@@ -455,7 +455,7 @@ export default function ContractorListPage() {
                         </ModalBody>
                         <ModalFooter>
                             <Button mr={3} onClick={() => setEditingContractor(null)}>Cancel</Button>
-                            <Button colorScheme="orange" onClick={handleEditSubmit} isLoading={editLoading}>Save</Button>
+                            <Button colorScheme="purple" onClick={handleEditSubmit} isLoading={editLoading}>Save</Button>
                         </ModalFooter>
                     </ModalContent>
                 </Modal>

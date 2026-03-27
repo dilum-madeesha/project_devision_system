@@ -148,14 +148,16 @@ export default function Projectsummery() {
 
     // Work steps/activities
     const workSteps = [
-        { icon: "📦", step: "1. Planning & Feasibility", description: "Identify needs, budget estimation, site selection, feasibility study", status: "info" },
-        { icon: "✅", step: "2. Design & Documentation", description: "Architectural, structural, electrical designs, BOQ, approvals", status: "info" },
-        { icon: "👤", step: "3. Tendering & Contracting", description: "Tender documents, invite contractors, evaluate bids, sign contract", status: "info" },
-        { icon: "🏗️", step: "4. Construction", description: "Foundation, superstructure, roofing, electrical, plumbing, finishing", status: "info" },
-        { icon: "📊", step: "5. Monitoring & Quality Control", description: "Site supervision, quality checks, safety, progress control", status: "info" },
-        { icon: "🔧", step: "6. Testing & Commissioning", description: "Electrical, plumbing, equipment testing, final inspections", status: "info" },
-        { icon: "🎉", step: "7. Handover & Completion", description: "Final inspection, snag list, handover, occupancy certificate", status: "info" },
-        { icon: "🔧", step: "8. Maintenance", description: "Defect liability period, repairs, regular maintenance", status: "info" },
+        { icon: "�", step: "1. Feasibility Study", description: "Assess project viability, technical feasibility, economic analysis, risk assessment", status: "info" },
+        { icon: "📋", step: "2. Requirement Analysis", description: "Gather and document project requirements, stakeholder analysis, functional specifications", status: "info" },
+        { icon: "📐", step: "3. Planning and Design", description: "Develop project plans, architectural design, technical specifications, resource planning", status: "info" },
+        { icon: "💰", step: "4. Budgeting and Cost Estimation", description: "Prepare detailed budget, cost breakdown, financial planning, funding arrangements", status: "info" },
+        { icon: "🛒", step: "5. Procurement", description: "Tendering process, vendor selection, contract negotiations, material procurement", status: "info" },
+        { icon: "🏗️", step: "6. Execution and Quality Control", description: "Project implementation, construction work, quality assurance, progress monitoring", status: "info" },
+        { icon: "📊", step: "7. Monitoring and Evaluation", description: "Performance tracking, milestone reviews, risk monitoring, progress evaluation", status: "info" },
+        { icon: "🔧", step: "8. Testing and Commissioning", description: "System testing, commissioning activities, final inspections, performance verification", status: "info" },
+        { icon: "🎉", step: "9. Handover", description: "Project handover, documentation delivery, training, final acceptance", status: "info" },
+        { icon: "🛠️", step: "10. Maintenance", description: "Post-handover support, warranty management, ongoing maintenance, defect resolution", status: "info" },
     ];
 
     // Status badge color helper
@@ -364,7 +366,7 @@ export default function Projectsummery() {
                         <Flex
                             key={idx}
                             p={3}
-                            bg={idx < 3 ? "green.50" : idx < 6 ? "blue.50" : "gray.50"}
+                            bg={idx < 4 ? "green.50" : idx < 8 ? "blue.50" : "gray.50"}
                             rounded="lg"
                             align="start"
                             gap={3}
@@ -380,12 +382,12 @@ export default function Projectsummery() {
                                 </Text>
                             </VStack>
 
-                            <Badge
-                                colorScheme={idx < 3 ? "green" : idx < 6 ? "blue" : "gray"}
+                            {/* <Badge
+                                colorScheme={idx < 4 ? "green" : idx < 8 ? "blue" : "gray"}
                                 fontSize="xs"
                             >
-                                {idx < 3 ? "Completed" : idx < 6 ? "Ongoing" : "Pending"}
-                            </Badge>
+                                {idx < 4 ? "Completed" : idx < 8 ? "Ongoing" : "Pending"}
+                            </Badge> */}
                         </Flex>
                     ))}
                 </SimpleGrid>

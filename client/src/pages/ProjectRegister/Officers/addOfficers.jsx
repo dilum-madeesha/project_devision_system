@@ -7,6 +7,8 @@ import {
   Box,
   Stack,
   Flex,
+  Grid,
+  GridItem,
   FormControl,
   FormLabel,
   Input,
@@ -20,11 +22,16 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Heading,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const AddOfficerPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const bg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const headerBg = useColorModeValue("#f0f4ff", "gray.700");
+  const textColor = useColorModeValue("gray.600", "gray.400");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -91,8 +98,8 @@ const AddOfficerPage = () => {
       <Stack spacing={4}>
 
         {/* Breadcrumb */}
-        <Breadcrumb fontSize="sm">
-          <BreadcrumbItem>
+        <Breadcrumb fontSize="sm" color="blue.600" mb={0.1} py={0.2}>
+          <BreadcrumbItem >
             <BreadcrumbLink as={RouterLink} to="/projectregister">
               Register
             </BreadcrumbLink>
@@ -116,9 +123,18 @@ const AddOfficerPage = () => {
         )}
 
         {/* Card */}
-        <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+        <Box bg={bg} borderRadius="lg" boxShadow="md" border="1px solid" borderColor={borderColor}>
+          {/* Card Header */}
+          <Box bg={headerBg} p={6} borderBottom="1px solid" borderColor={borderColor} borderTopRadius="lg">
+            <Heading size="md" color="blue.600" fontWeight="bold">
+              Add New Officer
+            </Heading>
+          </Box>
+
+          {/* Card Body */}
+          <Box p={6}>
           <form onSubmit={handleSubmit}>
-            <Stack spacing={4}>
+            <Stack spacing={6}>
 
               <FormControl isRequired>
                 <FormLabel>EPF / Officer No</FormLabel>
@@ -127,6 +143,7 @@ const AddOfficerPage = () => {
                   value={formData.officerNo}
                   onChange={handleChange}
                   placeholder="Enter EPF number"
+                  borderColor={borderColor}
                 />
               </FormControl>
 
@@ -136,62 +153,75 @@ const AddOfficerPage = () => {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
+                  borderColor={borderColor}
                 />
               </FormControl>
 
-              <Flex gap={4} flexWrap="wrap">
-                <FormControl isRequired>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </FormControl>
+              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                <GridItem>
+                  <FormControl isRequired>
+                    <FormLabel>Email</FormLabel>
+                    <Input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      borderColor={borderColor}
+                    />
+                  </FormControl>
+                </GridItem>
 
-                <FormControl isRequired>
-                  <FormLabel>Contact Number</FormLabel>
-                  <Input
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleChange}
-                  />
-                </FormControl>
-              </Flex>
+                <GridItem>
+                  <FormControl isRequired>
+                    <FormLabel>Contact Number</FormLabel>
+                    <Input
+                      name="contactNumber"
+                      value={formData.contactNumber}
+                      onChange={handleChange}
+                      borderColor={borderColor}
+                    />
+                  </FormControl>
+                </GridItem>
+              </Grid>
 
-              <Flex gap={4} flexWrap="wrap">
-                <FormControl isRequired>
-                  <FormLabel>Designation</FormLabel>
-                  <Select
-                    name="designation"
-                    value={formData.designation}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select designation</option>
-                    <option value="Engineer">Engineer</option>
-                    <option value="Technical Officer">Technical Officer</option>
-                    <option value="Secretary">Secretary</option>
-                  </Select>
-                </FormControl>
+              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                <GridItem>
+                  <FormControl isRequired>
+                    <FormLabel>Designation</FormLabel>
+                    <Select
+                      name="designation"
+                      value={formData.designation}
+                      onChange={handleChange}
+                      borderColor={borderColor}
+                    >
+                      <option value="">Select designation</option>
+                      <option value="Engineer">Engineer</option>
+                      <option value="Technical Officer">Technical Officer</option>
+                      <option value="Secretary">Secretary</option>
+                    </Select>
+                  </FormControl>
+                </GridItem>
 
-                <FormControl isRequired>
-                  <FormLabel>Division</FormLabel>
-                  <Select
-                    name="division"
-                    value={formData.division}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select division</option>
-                    <option value="Project">Project</option>
-                    <option value="Civil">Civil</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Mechanical">Mechanical</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Other">Other</option>
-                  </Select>
-                </FormControl>
-              </Flex>
+                <GridItem>
+                  <FormControl isRequired>
+                    <FormLabel>Division</FormLabel>
+                    <Select
+                      name="division"
+                      value={formData.division}
+                      onChange={handleChange}
+                      borderColor={borderColor}
+                    >
+                      <option value="">Select division</option>
+                      <option value="Project">Project</option>
+                      <option value="Civil">Civil</option>
+                      <option value="Electrical">Electrical</option>
+                      <option value="Mechanical">Mechanical</option>
+                      <option value="Administration">Administration</option>
+                      <option value="Other">Other</option>
+                    </Select>
+                  </FormControl>
+                </GridItem>
+              </Grid>
 
               <FormControl isRequired>
                 <FormLabel>Qualification</FormLabel>
@@ -199,6 +229,7 @@ const AddOfficerPage = () => {
                   name="qualification"
                   value={formData.qualification}
                   onChange={handleChange}
+                  borderColor={borderColor}
                 >
                   <option value="">Select qualification</option>
                   <option value="PhD">PhD</option>
@@ -211,32 +242,37 @@ const AddOfficerPage = () => {
                 </Select>
               </FormControl>
 
-              <Flex gap={4} flexWrap="wrap">
-                <FormControl>
-                  <FormLabel>Experience (Years)</FormLabel>
-                  <NumberInput
-                    min={0}
-                    value={formData.experience}
-                    onChange={(value) =>
-                      setFormData((prev) => ({ ...prev, experience: value }))
-                    }
-                  >
-                    <NumberInputField />
-                  </NumberInput>
-                </FormControl>
+              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
+                <GridItem>
+                  <FormControl>
+                    <FormLabel>Experience (Years)</FormLabel>
+                    <NumberInput
+                      min={0}
+                      value={formData.experience}
+                      onChange={(value) =>
+                        setFormData((prev) => ({ ...prev, experience: value }))
+                      }
+                    >
+                      <NumberInputField />
+                    </NumberInput>
+                  </FormControl>
+                </GridItem>
 
-                <FormControl isRequired>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    name="status"
-                    value={formData.status ? "true" : "false"}
-                    onChange={handleStatusChange}
-                  >
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                  </Select>
-                </FormControl>
-              </Flex>
+                <GridItem>
+                  <FormControl isRequired>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      name="status"
+                      value={formData.status ? "true" : "false"}
+                      onChange={handleStatusChange}
+                      borderColor={borderColor}
+                    >
+                      <option value="true">Active</option>
+                      <option value="false">Inactive</option>
+                    </Select>
+                  </FormControl>
+                </GridItem>
+              </Grid>
 
               <Flex gap={4}>
                 <Button
@@ -259,6 +295,7 @@ const AddOfficerPage = () => {
 
             </Stack>
           </form>
+          </Box>
         </Box>
 
       </Stack>

@@ -98,7 +98,7 @@ export default function SystemSelection() {
   const handleSelectSystem = (system) => {
     localStorage.setItem("selectedSystem", system);
     if (system === "cost") navigate("/dashboard");
-    else if (system === "project") navigate("/project-viewer");
+    else if (system === "project") navigate("/projectdashbord");
   };
 
   return (
