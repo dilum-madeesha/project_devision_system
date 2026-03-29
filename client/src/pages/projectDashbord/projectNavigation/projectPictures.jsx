@@ -246,6 +246,8 @@ const ProjectPictures = () => {
             <VStack spacing={3} align="stretch">
               <Text fontWeight="bold" fontSize="sm">Select Project</Text>
               <Select
+                id="projectPicturesProjectSelect"
+                name="projectPicturesProjectSelect"
                 placeholder="Choose a project..."
                 value={selectedProject || ''}
                 onChange={handleProjectChange}
@@ -272,6 +274,8 @@ const ProjectPictures = () => {
                 <Box>
                   <Text fontSize="sm" fontWeight="medium" mb={2}>Upload Images (Admin only)</Text>
                   <Input
+                    id="projectPicturesImageUpload"
+                    name="projectPicturesImageUpload"
                     type="file"
                     accept="image/*"
                     multiple

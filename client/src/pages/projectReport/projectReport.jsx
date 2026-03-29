@@ -491,12 +491,16 @@ export default function ProjectReports() {
           <TabPanel>
             <HStack mb={4} spacing={4}>
               <Input
+                id="projectViewerSearch"
+                name="projectViewerSearch"
                 placeholder="Search by project ID or name..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 maxW="300px"
               />
               <Select
+                id="projectViewerStatusFilter"
+                name="projectViewerStatusFilter"
                 placeholder="All Status"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}

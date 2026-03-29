@@ -24,9 +24,21 @@ const startServer = async () => {
     });
 
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (err) => {
-      console.log('UNHANDLED REJECTION! Shutting down...');
-      console.log(err.name, err.message);
+    process.on('unhandledRejection', (reason) => {
+      const isErrorObject = reason instanceof Error;
+      const name = isErrorObject ? reason.name : typeof reason;
+      const message = isErrorObject
+        ? reason.message
+        : (reason === undefined ? 'undefined rejection reason' : JSON.stringify(reason));
+
+      console.log('UNHANDLED REJECTION!');
+      console.log(name, message);
+
+      if (NODE_ENV === 'development') {
+        return;
+      }
+
+      console.log('Shutting down...');
       server.close(() => {
         process.exit(1);
       });

@@ -164,8 +164,9 @@ const AddAgreement = () => {
                         <VStack spacing={6}>
                             {/* Agreement No */}
                             <FormControl isRequired>
-                                <FormLabel>Agreement No</FormLabel>
+                                <FormLabel htmlFor="agreementNo">Agreement No</FormLabel>
                                 <Input
+                                    id="agreementNo"
                                     name="agreementNo"
                                     value={formData.agreementNo}
                                     onChange={handleChange}
@@ -176,8 +177,9 @@ const AddAgreement = () => {
 
                             {/* Agreement ID */}
                             <FormControl>
-                                <FormLabel>Agreement ID (Optional)</FormLabel>
+                                <FormLabel htmlFor="agreementID">Agreement ID (Optional)</FormLabel>
                                 <Input
+                                    id="agreementID"
                                     name="agreementID"
                                     value={formData.agreementID}
                                     onChange={handleChange}
@@ -188,8 +190,9 @@ const AddAgreement = () => {
 
                             {/* Project Name */}
                             <FormControl isRequired>
-                                <FormLabel>Project Name</FormLabel>
+                                <FormLabel htmlFor="projectName">Project Name</FormLabel>
                                 <Input
+                                    id="projectName"
                                     name="projectName"
                                     value={formData.projectName}
                                     onChange={handleChange}
@@ -202,7 +205,7 @@ const AddAgreement = () => {
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                                 <GridItem>
                                     <FormControl isRequired>
-                                        <FormLabel>Agreement Sum (Rs.)</FormLabel>
+                                        <FormLabel htmlFor="agreementSum">Agreement Sum (Rs.)</FormLabel>
                                         <NumberInput
                                             min={0}
                                             precision={2}
@@ -211,13 +214,13 @@ const AddAgreement = () => {
                                                 handleNumberChange("agreementSum", valueAsString)
                                             }
                                         >
-                                            <NumberInputField placeholder="Enter agreement sum" borderColor={borderColor} />
+                                            <NumberInputField id="agreementSum" name="agreementSum" placeholder="Enter agreement sum" borderColor={borderColor} />
                                         </NumberInput>
                                     </FormControl>
                                 </GridItem>
                                 <GridItem>
                                     <FormControl>
-                                        <FormLabel>VAT (%)</FormLabel>
+                                        <FormLabel htmlFor="vat">VAT (%)</FormLabel>
                                         <NumberInput
                                             min={0}
                                             precision={2}
@@ -226,7 +229,7 @@ const AddAgreement = () => {
                                                 handleNumberChange("vat", valueAsString)
                                             }
                                         >
-                                            <NumberInputField placeholder="Enter VAT percentage" borderColor={borderColor} />
+                                            <NumberInputField id="vat" name="vat" placeholder="Enter VAT percentage" borderColor={borderColor} />
                                         </NumberInput>
                                     </FormControl>
                                 </GridItem>
@@ -234,7 +237,7 @@ const AddAgreement = () => {
 
                             {/* Period Days */}
                             <FormControl w="full">
-                                <FormLabel>Period (days)</FormLabel>
+                                <FormLabel htmlFor="periodDays">Period (days)</FormLabel>
                                 <NumberInput
                                     min={0}
                                     value={formData.periodDays}
@@ -242,7 +245,7 @@ const AddAgreement = () => {
                                         handleNumberChange("periodDays", valueAsString)
                                     }
                                 >
-                                    <NumberInputField placeholder="Enter period in days" borderColor={borderColor} />
+                                    <NumberInputField id="periodDays" name="periodDays" placeholder="Enter period in days" borderColor={borderColor} />
                                 </NumberInput>
                             </FormControl>
 
@@ -250,8 +253,9 @@ const AddAgreement = () => {
                             <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6} w="full">
                                 <GridItem>
                                     <FormControl>
-                                        <FormLabel>Award Date</FormLabel>
+                                        <FormLabel htmlFor="awardDate">Award Date</FormLabel>
                                         <Input
+                                            id="awardDate"
                                             type="date"
                                             name="awardDate"
                                             value={formData.awardDate}
@@ -262,8 +266,9 @@ const AddAgreement = () => {
                                 </GridItem>
                                 <GridItem>
                                     <FormControl>
-                                        <FormLabel>Start Date</FormLabel>
+                                        <FormLabel htmlFor="startDate">Start Date</FormLabel>
                                         <Input
+                                            id="startDate"
                                             type="date"
                                             name="startDate"
                                             value={formData.startDate}
@@ -275,8 +280,9 @@ const AddAgreement = () => {
                             </Grid>
 
                             <FormControl w="full">
-                                <FormLabel>Completion Date</FormLabel>
+                                <FormLabel htmlFor="completionDate">Completion Date</FormLabel>
                                 <Input
+                                    id="completionDate"
                                     type="date"
                                     name="completionDate"
                                     value={formData.completionDate}
@@ -286,8 +292,9 @@ const AddAgreement = () => {
                             </FormControl>
                             {/* Status Field */}
                             <FormControl w="full">
-                                <FormLabel>Status</FormLabel>
+                                <FormLabel htmlFor="status">Status</FormLabel>
                                 <Select
+                                    id="status"
                                     name="status"
                                     value={formData.status}
                                     onChange={handleChange}

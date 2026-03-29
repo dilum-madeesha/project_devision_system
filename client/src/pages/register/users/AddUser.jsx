@@ -83,7 +83,9 @@ const AddUserPage = () => {
 
       const createdUserId =
         result?.data?.id ||
+        result?.data?.user?.id ||
         result?.data?.data?.id ||
+        result?.user?.id ||
         result?.id;
 
       if (profileImageFile && createdUserId) {
@@ -92,7 +94,10 @@ const AddUserPage = () => {
         } catch (uploadError) {
           toast({
             title: "User created",
-            description: "User was created, but profile image upload failed.",
+            description:
+              uploadError?.response?.data?.message ||
+              uploadError?.message ||
+              "User was created, but profile image upload failed.",
             status: "warning",
             duration: 4000,
             isClosable: true,
@@ -183,8 +188,9 @@ const AddUserPage = () => {
               {/* Username and Email */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel htmlFor="username">Username</FormLabel>
                   <Input
+                    id="username"
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
@@ -192,8 +198,9 @@ const AddUserPage = () => {
                   />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel htmlFor="email">Email</FormLabel>
                   <Input
+                    id="email"
                     name="email"
                     type="email"
                     value={formData.email}
@@ -206,9 +213,10 @@ const AddUserPage = () => {
               {/* EPF Number and Password */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
-                  <FormLabel>EPF Number</FormLabel>
+                  <FormLabel htmlFor="epfNumber">EPF Number</FormLabel>
                   <NumberInput>
                     <NumberInputField
+                      id="epfNumber"
                       name="epfNumber"
                       value={formData.epfNumber}
                       onChange={handleChange}
@@ -217,9 +225,10 @@ const AddUserPage = () => {
                   </NumberInput>
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel htmlFor="password">Password</FormLabel>
                   <InputGroup>
                     <Input
+                      id="password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
@@ -242,8 +251,9 @@ const AddUserPage = () => {
               {/* Name Fields */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
-                  <FormLabel>First Name</FormLabel>
+                  <FormLabel htmlFor="firstName">First Name</FormLabel>
                   <Input
+                    id="firstName"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
@@ -251,8 +261,9 @@ const AddUserPage = () => {
                   />
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Last Name</FormLabel>
+                  <FormLabel htmlFor="lastName">Last Name</FormLabel>
                   <Input
+                    id="lastName"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
@@ -276,7 +287,7 @@ const AddUserPage = () => {
                       accept="image/*"
                       onChange={handleProfileImageChange}
                       p={1}
-                    />
+                    />  
                     <Text fontSize="xs" color="gray.500">
                       JPG, PNG, or WebP. Max 5MB.
                     </Text>
@@ -287,8 +298,9 @@ const AddUserPage = () => {
               {/* Division and Role */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
-                  <FormLabel>Division</FormLabel>
+                  <FormLabel htmlFor="division">Division</FormLabel>
                   <Select
+                    id="division"
                     name="division"
                     value={formData.division}
                     onChange={handleChange}
@@ -299,8 +311,9 @@ const AddUserPage = () => {
                   </Select>
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel htmlFor="role">Role</FormLabel>
                   <Select
+                    id="role"
                     name="role"
                     value={formData.role}
                     onChange={handleChange}
@@ -326,8 +339,9 @@ const AddUserPage = () => {
               {/* Privilege and Status */}
               <HStack spacing={4} w="full">
                 <FormControl isRequired>
-                  <FormLabel>Privilege Level</FormLabel>
+                  <FormLabel htmlFor="privilege">Privilege Level</FormLabel>
                   <Select
+                    id="privilege"
                     name="privilege"
                     value={formData.privilege}
                     onChange={handleChange}
@@ -343,8 +357,9 @@ const AddUserPage = () => {
                   </Select>
                 </FormControl>
                 <FormControl isRequired>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel htmlFor="isActive">Status</FormLabel>
                   <Select
+                    id="isActive"
                     name="isActive"
                     value={formData.isActive}
                     onChange={(e) => setFormData(prev => ({
@@ -365,8 +380,10 @@ const AddUserPage = () => {
                 />
                 <VStack align="start" spacing={2} w="full">
                   <FormControl>
-                    <FormLabel mb={1}>Profile Image (Optional)</FormLabel>
+                    <FormLabel htmlFor="profileImage" mb={1}>Profile Image (Optional)</FormLabel>
                     <Input
+                      id="profileImage"
+                      name="profileImage"
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"

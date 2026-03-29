@@ -137,8 +137,9 @@ const AddOfficerPage = () => {
             <Stack spacing={6}>
 
               <FormControl isRequired>
-                <FormLabel>EPF / Officer No</FormLabel>
+                <FormLabel htmlFor="officerNo">EPF / Officer No</FormLabel>
                 <Input
+                  id="officerNo"
                   name="officerNo"
                   value={formData.officerNo}
                   onChange={handleChange}
@@ -148,8 +149,9 @@ const AddOfficerPage = () => {
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel htmlFor="fullName">Full Name</FormLabel>
                 <Input
+                  id="fullName"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
@@ -161,8 +163,9 @@ const AddOfficerPage = () => {
               <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel htmlFor="email">Email</FormLabel>
                     <Input
+                      id="email"
                       type="email"
                       name="email"
                       value={formData.email}
@@ -175,8 +178,9 @@ const AddOfficerPage = () => {
 
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel>Contact Number</FormLabel>
+                    <FormLabel htmlFor="contactNumber">Contact Number</FormLabel>
                     <Input
+                      id="contactNumber"
                       name="contactNumber"
                       value={formData.contactNumber}
                       onChange={handleChange}
@@ -190,8 +194,9 @@ const AddOfficerPage = () => {
               <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel>Designation</FormLabel>
+                    <FormLabel htmlFor="designation">Designation</FormLabel>
                     <Select
+                      id="designation"
                       name="designation"
                       value={formData.designation}
                       onChange={handleChange}
@@ -207,8 +212,9 @@ const AddOfficerPage = () => {
 
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel>Division</FormLabel>
+                    <FormLabel htmlFor="division">Division</FormLabel>
                     <Select
+                      id="division"
                       name="division"
                       value={formData.division}
                       onChange={handleChange}
@@ -227,8 +233,9 @@ const AddOfficerPage = () => {
               </Grid>
 
               <FormControl isRequired>
-                <FormLabel>Qualification</FormLabel>
+                <FormLabel htmlFor="qualification">Qualification</FormLabel>
                 <Select
+                  id="qualification"
                   name="qualification"
                   value={formData.qualification}
                   onChange={handleChange}
@@ -248,7 +255,7 @@ const AddOfficerPage = () => {
               <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={6}>
                 <GridItem>
                   <FormControl>
-                    <FormLabel>Experience (Years)</FormLabel>
+                    <FormLabel htmlFor="experience">Experience (Years)</FormLabel>
                     <NumberInput
                       min={0}
                       value={formData.experience}
@@ -256,15 +263,16 @@ const AddOfficerPage = () => {
                         setFormData((prev) => ({ ...prev, experience: value }))
                       }
                     >
-                      <NumberInputField />
+                      <NumberInputField id="experience" name="experience" />
                     </NumberInput>
                   </FormControl>
                 </GridItem>
 
                 <GridItem>
                   <FormControl isRequired>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel htmlFor="status">Status</FormLabel>
                     <Select
+                      id="status"
                       name="status"
                       value={formData.status ? "true" : "false"}
                       onChange={handleStatusChange}

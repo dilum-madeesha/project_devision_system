@@ -486,8 +486,10 @@ const DailyLaborAssignment = () => {
           
           <HStack spacing={4} align="end">
             <FormControl flex="2">
-              <FormLabel fontSize="sm">Select Date</FormLabel>
+              <FormLabel htmlFor="dailyLaborAssignmentDate" fontSize="sm">Select Date</FormLabel>
               <Input
+                id="dailyLaborAssignmentDate"
+                name="dailyLaborAssignmentDate"
                 type="date"
                 size="sm"
                 value={selectedDate}
@@ -497,7 +499,7 @@ const DailyLaborAssignment = () => {
             </FormControl>
             
             <FormControl flex="1">
-              <FormLabel fontSize="sm">Actions</FormLabel>
+              <Text fontSize="sm" fontWeight="medium">Actions</Text>
               <HStack spacing={2}>
                 <Button
                   leftIcon={<FiDownload />}

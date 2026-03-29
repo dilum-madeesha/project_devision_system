@@ -739,7 +739,7 @@ const AddLaborCostPage = () => {
                                   }}
                                   width="70px"
                                 >
-                                  <NumberInputField />
+                                  <NumberInputField id={`addLaborOtHours-${labor.id}`} name={`addLaborOtHours-${labor.id}`} />
                                   <NumberInputStepper>
                                     <NumberIncrementStepper />
                                     <NumberDecrementStepper />

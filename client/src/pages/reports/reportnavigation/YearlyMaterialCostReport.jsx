@@ -392,8 +392,10 @@ const YearlyMaterialCostReport = () => {
               
               <HStack spacing={4} align="end" flexWrap="wrap">
                 <FormControl maxW="120px">
-                  <FormLabel fontSize="sm">Year</FormLabel>
+                  <FormLabel htmlFor="yearlyMaterialCostYear" fontSize="sm">Year</FormLabel>
                   <Select
+                    id="yearlyMaterialCostYear"
+                    name="yearlyMaterialCostYear"
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     size="sm"

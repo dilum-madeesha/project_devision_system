@@ -517,7 +517,7 @@ class AuthService {
 
     const existingUser = await prisma.user.findUnique({
       where: { id: parsedUserId },
-      select: { id: true, profileImagePublicId: true },
+      select: { id: true, profileImagePublicId: true, profileImageUrl: true },
     });
 
     if (!existingUser) {
@@ -579,7 +579,7 @@ class AuthService {
 
     const existingUser = await prisma.user.findUnique({
       where: { id: parsedUserId },
-      select: { id: true, profileImagePublicId: true },
+      select: { id: true, profileImagePublicId: true, profileImageUrl: true },
     });
 
     if (!existingUser) {

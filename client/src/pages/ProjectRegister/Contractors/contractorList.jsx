@@ -232,12 +232,16 @@ export default function ContractorListPage() {
                 {/* Filters */}
                 <Flex mb={4} gap={3} flexWrap="wrap">
                     <Input
+                        id="contractorListSearch"
+                        name="contractorListSearch"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         maxW="300px"
                     />
                     <Select
+                        id="contractorListStatusFilter"
+                        name="contractorListStatusFilter"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                         maxW="150px"

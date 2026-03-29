@@ -405,8 +405,10 @@ const MonthlyMaterialCostReport = () => {
               
               <HStack spacing={4} align="end" flexWrap="wrap">
                 <FormControl maxW="120px">
-                  <FormLabel fontSize="sm">Year</FormLabel>
+                  <FormLabel htmlFor="monthlyMaterialCostYear" fontSize="sm">Year</FormLabel>
                   <Select
+                    id="monthlyMaterialCostYear"
+                    name="monthlyMaterialCostYear"
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     size="sm"
@@ -418,8 +420,10 @@ const MonthlyMaterialCostReport = () => {
                 </FormControl>
 
                 <FormControl maxW="150px">
-                  <FormLabel fontSize="sm">Month</FormLabel>
+                  <FormLabel htmlFor="monthlyMaterialCostMonth" fontSize="sm">Month</FormLabel>
                   <Select
+                    id="monthlyMaterialCostMonth"
+                    name="monthlyMaterialCostMonth"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     size="sm"

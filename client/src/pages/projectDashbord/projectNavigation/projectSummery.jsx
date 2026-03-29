@@ -12,6 +12,7 @@ import { IoCloudDone } from "react-icons/io5";
 import { HiOutlineWifi } from "react-icons/hi";
 import { FiUsers, FiClipboard, FiBriefcase, FiCheckSquare, FiAlertCircle, FiClock, FiActivity } from "react-icons/fi";
 import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
+import { ImStatsBars } from "react-icons/im";
 
 import { projectAPI } from "../../../api/projects.js";
 import { contractorAPI } from "../../../api/contractors.js";
@@ -215,7 +216,7 @@ export default function Projectsummery() {
 
             {/* ==================== PROJECT STATISTICS ==================== */}
             <Box mb={6}>
-                <Heading size="md" mb={4}>📊 Project Statistics</Heading>
+                <Heading size="md" mb={4}>Project Statistics</Heading>
                 <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
                     {statsCards.map((card, idx) => (
                         <Box key={idx} bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100">
@@ -239,7 +240,7 @@ export default function Projectsummery() {
 
             {/* ==================== FINANCIAL OVERVIEW ==================== */}
             <Box mb={6}>
-                <Heading size="md" mb={4}>💰 Financial Overview</Heading>
+                <Heading size="md" mb={4}>Financial Overview</Heading>
                 <Grid templateColumns={{ base: "1fr", md: "repeat(3, 1fr)" }} gap={4}>
                     {financialCards.map((card, idx) => (
                         <Box key={idx} bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100">
@@ -262,7 +263,7 @@ export default function Projectsummery() {
             <Grid templateColumns={{ base: "1fr", lg: "2fr 1fr" }} gap={6} mb={6}>
                 {/* Revenue Overview */}
                 <Box bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100">
-                    <Heading size="md" mb={2}>📈 Expense Overview</Heading>
+                    <Heading size="md" mb={2}>Expense Overview</Heading>
                     <Text fontSize="sm" color="gray.500" mb={4}>Monthly expenses breakdown</Text>
                     <ResponsiveContainer width="100%" height={280}>
                         <AreaChart data={expenseData}>
@@ -278,7 +279,7 @@ export default function Projectsummery() {
 
                 {/* Project Overview Cycle */}
                 <Box bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100">
-                    <Heading size="md" mb={2}>🔄 Project Overview Cycle</Heading>
+                    <Heading size="md" mb={2}>Project Overview Cycle</Heading>
                     <Text fontSize="sm" color="gray.500" mb={4}>Distribution by status</Text>
                     {projectCycleData.length > 0 ? (
                         <ResponsiveContainer width="100%" height={280}>
@@ -311,7 +312,7 @@ export default function Projectsummery() {
 
             {/* ==================== PROJECT TABLE ==================== */}
             <Box bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100" mb={6}>
-                <Heading size="md" mb={4}>📋 Project Table</Heading>
+                <Heading size="md" mb={4}>Project Table</Heading>
                 <TableContainer>
                     <Table size="sm" variant="simple">
                         <Thead bg="gray.50">
@@ -359,7 +360,7 @@ export default function Projectsummery() {
 
             {/* ==================== CONTRACTORS & WORK STEPS ==================== */}
             <Box bg="white" rounded="xl" p={5} shadow="sm" border="1px" borderColor="gray.100" mb={6}>
-                <Heading size="md" mb={4}>📝 Project Work Progress Steps</Heading>
+                <Heading size="md" mb={4}>Project Work Progress Steps</Heading>
 
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3}>
                     {workSteps.map((step, idx) => (

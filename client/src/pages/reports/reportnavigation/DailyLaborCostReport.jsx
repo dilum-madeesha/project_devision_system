@@ -466,8 +466,10 @@ const DailyLaborCostReport = () => {
               
               <HStack spacing={4} align="end" flexWrap="wrap">
                 <FormControl maxW="200px">
-                  <FormLabel fontSize="sm">Select Date</FormLabel>
+                  <FormLabel htmlFor="dailyLaborCostReportDate" fontSize="sm">Select Date</FormLabel>
                   <Input
+                    id="dailyLaborCostReportDate"
+                    name="dailyLaborCostReportDate"
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}

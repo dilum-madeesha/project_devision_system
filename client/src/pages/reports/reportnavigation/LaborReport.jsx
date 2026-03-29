@@ -555,8 +555,10 @@ const LaborReport = () => {
           
           <HStack spacing={4} align="end">
             <FormControl flex="2">
-              <FormLabel fontSize="sm">Select Labor</FormLabel>
+              <FormLabel htmlFor="laborReportLaborSelect" fontSize="sm">Select Labor</FormLabel>
               <Select
+                id="laborReportLaborSelect"
+                name="laborReportLaborSelect"
                 size="sm"
                 placeholder="Choose a labor..."
                 value={selectedLaborId}
@@ -571,7 +573,7 @@ const LaborReport = () => {
             </FormControl>
             
             <FormControl flex="1">
-              <FormLabel fontSize="sm">Actions</FormLabel>
+              <Text fontSize="sm" fontWeight="medium">Actions</Text>
               <HStack spacing={2}>
                 <Button
                   leftIcon={<FiDownload />}

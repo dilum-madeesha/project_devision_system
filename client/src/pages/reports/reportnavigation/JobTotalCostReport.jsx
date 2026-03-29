@@ -761,8 +761,10 @@ const JobTotalCostReport = () => {
           <VStack spacing={4} align="stretch">
             <SimpleGrid columns={{ base: 1, md: 4 }} spacing={3}>
               <FormControl>
-                <FormLabel fontSize="sm">Department</FormLabel>
+                <FormLabel htmlFor="jobTotalCostDepartmentFilter" fontSize="sm">Department</FormLabel>
                 <Select
+                  id="jobTotalCostDepartmentFilter"
+                  name="jobTotalCostDepartmentFilter"
                   size="sm"
                   placeholder="All Departments"
                   value={departmentFilter}
@@ -775,8 +777,10 @@ const JobTotalCostReport = () => {
               </FormControl>
               
               <FormControl>
-                <FormLabel fontSize="sm">Status</FormLabel>
+                <FormLabel htmlFor="jobTotalCostStatusFilter" fontSize="sm">Status</FormLabel>
                 <Select
+                  id="jobTotalCostStatusFilter"
+                  name="jobTotalCostStatusFilter"
                   size="sm"
                   placeholder="All Statuses"
                   value={statusFilter}
@@ -789,8 +793,10 @@ const JobTotalCostReport = () => {
               </FormControl>
               
               <FormControl>
-                <FormLabel fontSize="sm">Select Job</FormLabel>
+                <FormLabel htmlFor="jobTotalCostJobSelect" fontSize="sm">Select Job</FormLabel>
                 <Select
+                  id="jobTotalCostJobSelect"
+                  name="jobTotalCostJobSelect"
                   size="sm"
                   placeholder="Choose a job..."
                   value={selectedJobId}
@@ -805,7 +811,7 @@ const JobTotalCostReport = () => {
               </FormControl>
               
               <FormControl>
-                <FormLabel fontSize="sm">Actions</FormLabel>
+                <Text fontSize="sm" fontWeight="medium">Actions</Text>
                 <HStack spacing={2}>
                   <Button
                     leftIcon={<FiDownload />}

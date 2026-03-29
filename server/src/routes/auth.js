@@ -20,7 +20,7 @@ const {
   deleteUserImage,
 } = AuthController;
 import UserController from '../controllers/userController.js';
-import { authenticate, requirePrivilege, BACKEND_FEATURES } from '../middleware/privilegeAuth.js';
+import { authenticate, requirePrivilege, requireAnyPrivilege, BACKEND_FEATURES } from '../middleware/privilegeAuth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 import { verifyToken } from '../utils/auth.js';
 import prisma from '../config/database.js';
@@ -39,6 +39,28 @@ const userImageUpload = multer({
     }
   },
 });
+
+const handleUserImageUpload = (req, res, next) => {
+  userImageUpload.single('image')(req, res, (err) => {
+    if (!err) return next();
+
+    if (err instanceof multer.MulterError) {
+      const message = err.code === 'LIMIT_FILE_SIZE'
+        ? 'Profile image must be 5MB or smaller'
+        : err.message;
+
+      return res.status(400).json({
+        success: false,
+        message,
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: err.message || 'Invalid image upload request',
+    });
+  });
+};
 
 // Optional authentication middleware - doesn't fail if no token provided
 const optionalAuthenticate = async (req, res, next) => {
@@ -113,7 +135,7 @@ router.get('/me', getProfile); // Endpoint for checking current user status
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.put('/change-password', changePassword);
-router.post('/profile/image', userImageUpload.single('image'), uploadProfileImage);
+router.post('/profile/image', handleUserImageUpload, uploadProfileImage);
 router.delete('/profile/image', deleteProfileImage);
 
 // User management routes (privilege-based)
@@ -125,7 +147,15 @@ router.get('/users/:id', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_READ),
 router.put('/users/:id/status', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_UPDATE), updateUserStatus);
 router.put('/users/:id', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_UPDATE), updateUser);
 router.delete('/users/:id', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_DELETE), deleteUser);
-router.post('/users/:id/image', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_UPDATE), userImageUpload.single('image'), uploadUserImage);
+router.post(
+  '/users/:id/image',
+  requireAnyPrivilege([
+    BACKEND_FEATURES.REGISTER_USERS_CREATE,
+    BACKEND_FEATURES.REGISTER_USERS_UPDATE,
+  ]),
+  handleUserImageUpload,
+  uploadUserImage
+);
 router.delete('/users/:id/image', requirePrivilege(BACKEND_FEATURES.REGISTER_USERS_UPDATE), deleteUserImage);
 
 export default router;

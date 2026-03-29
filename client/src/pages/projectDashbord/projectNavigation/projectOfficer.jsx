@@ -222,12 +222,16 @@ export default function ProjectOfficer() {
               <Search size={18} color="gray" />
             </InputLeftElement>
             <Input
+              id="projectOfficerSearch"
+              name="projectOfficerSearch"
               placeholder="Search officers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </InputGroup>
           <Select
+            id="projectOfficerDesignationFilter"
+            name="projectOfficerDesignationFilter"
             maxW="200px"
             value={filterDesignation}
             onChange={(e) => setFilterDesignation(e.target.value)}
@@ -238,6 +242,8 @@ export default function ProjectOfficer() {
             <option value="Secretary">Secretary</option>
           </Select>
           <Select
+            id="projectOfficerStatusFilter"
+            name="projectOfficerStatusFilter"
             maxW="200px"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -270,7 +276,7 @@ export default function ProjectOfficer() {
                     {/* Officer Name */}
                     <Td>
                       <HStack spacing={3}>
-                        <Avatar size="sm" name={officer.name} />
+                        {/* <Avatar size="sm" name={officer.name} /> */}
                         <Text fontWeight="medium">{officer.name}</Text>
                       </HStack>
                     </Td>

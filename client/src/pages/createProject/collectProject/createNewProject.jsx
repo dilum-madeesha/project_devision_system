@@ -371,24 +371,26 @@ export default function ProjectSetup() {
                   <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={5}>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Project ID</FormLabel>
-                        <Input name="projectId" value={formData.projectId} onChange={handleChange}
+                        <FormLabel htmlFor="projectId" fontSize="sm" fontWeight="semibold" color="gray.600">Project ID</FormLabel>
+                        <Input id="projectId" name="projectId" value={formData.projectId} onChange={handleChange}
+                          autoComplete="off"
                           placeholder="e.g., PRJ-001" focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Project Name</FormLabel>
-                        <Input name="projectName" value={formData.projectName} onChange={handleChange}
+                        <FormLabel htmlFor="projectName" fontSize="sm" fontWeight="semibold" color="gray.600">Project Name</FormLabel>
+                        <Input id="projectName" name="projectName" value={formData.projectName} onChange={handleChange}
+                          autoComplete="off"
                           placeholder="Enter project name" focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Status</FormLabel>
-                        <Select name="status" value={formData.status} onChange={handleChange}
+                        <FormLabel htmlFor="status" fontSize="sm" fontWeight="semibold" color="gray.600">Status</FormLabel>
+                        <Select id="status" name="status" value={formData.status} onChange={handleChange}
                           focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
                           <option value="PLANNING">Planning</option>
                           <option value="IN_PROGRESS">In Progress</option>
@@ -400,23 +402,26 @@ export default function ProjectSetup() {
                     </GridItem>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Description</FormLabel>
-                        <Input name="description" value={formData.description} onChange={handleChange}
+                        <FormLabel htmlFor="description" fontSize="sm" fontWeight="semibold" color="gray.600">Description</FormLabel>
+                        <Input id="description" name="description" value={formData.description} onChange={handleChange}
+                          autoComplete="off"
                           placeholder="Enter description" focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Start Date</FormLabel>
-                        <Input name="startDate" type="date" value={formData.startDate} onChange={handleChange}
+                        <FormLabel htmlFor="startDate" fontSize="sm" fontWeight="semibold" color="gray.600">Start Date</FormLabel>
+                        <Input id="startDate" name="startDate" type="date" value={formData.startDate} onChange={handleChange}
+                          autoComplete="off"
                           focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
                       <FormControl>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">End Date</FormLabel>
-                        <Input name="endDate" type="date" value={formData.endDate} onChange={handleChange}
+                        <FormLabel htmlFor="endDate" fontSize="sm" fontWeight="semibold" color="gray.600">End Date</FormLabel>
+                        <Input id="endDate" name="endDate" type="date" value={formData.endDate} onChange={handleChange}
+                          autoComplete="off"
                           focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
                       </FormControl>
                     </GridItem>
@@ -479,7 +484,10 @@ export default function ProjectSetup() {
                 <CardBody px={5} py={4}>
                   <HStack spacing={2} mb={3}>
                     <Input
+                      id="newExpense"
+                      name="newExpense"
                       type="number"
+                      autoComplete="off"
                       placeholder="Amount"
                       value={newExpense}
                       onChange={e => setNewExpense(e.target.value)}
@@ -628,8 +636,8 @@ export default function ProjectSetup() {
                   <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={5}>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Engineer</FormLabel>
-                        <Select placeholder="Select Engineer" name="engineerId" value={formData.engineerId}
+                        <FormLabel htmlFor="engineerId" fontSize="sm" fontWeight="semibold" color="gray.600">Engineer</FormLabel>
+                        <Select id="engineerId" placeholder="Select Engineer" name="engineerId" value={formData.engineerId}
                           onChange={handleChange} focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
                           {engineers.map(e => (
@@ -640,8 +648,8 @@ export default function ProjectSetup() {
                     </GridItem>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Technical Officer</FormLabel>
-                        <Select placeholder="Select Technical Officer" name="technicalOfficerId" value={formData.technicalOfficerId}
+                        <FormLabel htmlFor="technicalOfficerId" fontSize="sm" fontWeight="semibold" color="gray.600">Technical Officer</FormLabel>
+                        <Select id="technicalOfficerId" placeholder="Select Technical Officer" name="technicalOfficerId" value={formData.technicalOfficerId}
                           onChange={handleChange} focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
                           {technicalOfficers.map(o => (
@@ -652,8 +660,8 @@ export default function ProjectSetup() {
                     </GridItem>
                     <GridItem>
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">Secretary</FormLabel>
-                        <Select placeholder="Select Secretary" name="secretaryId" value={formData.secretaryId}
+                        <FormLabel htmlFor="secretaryId" fontSize="sm" fontWeight="semibold" color="gray.600">Secretary</FormLabel>
+                        <Select id="secretaryId" placeholder="Select Secretary" name="secretaryId" value={formData.secretaryId}
                           onChange={handleChange} focusBorderColor="orange.400"
                           borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
                           {secretaries.map(s => (
@@ -680,10 +688,10 @@ export default function ProjectSetup() {
                 <CardBody px={5} py={5}>
                   <VStack spacing={4} align="stretch">
                     <FormControl>
-                      <FormLabel fontSize="sm" fontWeight="semibold" color="gray.600">
+                      <FormLabel htmlFor="image-upload" fontSize="sm" fontWeight="semibold" color="gray.600">
                         Upload Pictures (Optional)
                       </FormLabel>
-                      <Input id="image-upload" type="file" accept="image/*" multiple
+                      <Input id="image-upload" name="image-upload" type="file" accept="image/*" multiple
                         onChange={handleImageChange} display="none" />
                       <Button as="label" htmlFor="image-upload" variant="outline" cursor="pointer"
                         leftIcon={<FiCamera />} w="full" borderColor="orange.300" color="orange.500"

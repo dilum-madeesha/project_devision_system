@@ -71,6 +71,8 @@ const AddMaterialCostPage = () => {
   const summaryBg = useColorModeValue("gray.50", "gray.700");
   const cardBg = useColorModeValue("white", "gray.800");
   const hoverBg = useColorModeValue("gray.50", "gray.700");
+  const pageBg = useColorModeValue("gray.50", "gray.900");
+  const sectionHeaderBg = useColorModeValue("gray.50", "gray.700");
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -323,7 +325,7 @@ const AddMaterialCostPage = () => {
         </Box>
         
         {/* Loading Content */}
-        <Box flex="1" overflowY="auto" bg={useColorModeValue("gray.50", "gray.900")} display="flex" alignItems="center" justifyContent="center">
+        <Box flex="1" overflowY="auto" bg={pageBg} display="flex" alignItems="center" justifyContent="center">
           <VStack spacing={4}>
             <Text>Loading form data...</Text>
           </VStack>
@@ -335,7 +337,7 @@ const AddMaterialCostPage = () => {
   return (
     <Box h="85vh" display="flex" flexDirection="column">
       {/* Scrollable Content Area */}
-      <Box flex="1" overflowY="auto" bg={useColorModeValue("gray.50", "gray.900")}>
+      <Box flex="1" overflowY="auto" bg={pageBg}>
         <Container maxW="1200px" py={4}>
           <form id="materialOrderForm" onSubmit={handleSubmit}>
             <VStack spacing={4} align="stretch">
@@ -457,7 +459,7 @@ const AddMaterialCostPage = () => {
                   <VStack spacing={4} align="stretch">
                     {/* Available Materials Card */}
                     <Card variant="outline">
-                      <CardHeader p={3} bg={useColorModeValue("gray.50", "gray.700")} borderTopRadius="md">
+                      <CardHeader p={3} bg={sectionHeaderBg} borderTopRadius="md">
                         <VStack spacing={3} align="stretch">
                           <Flex justify="space-between" align="center">
                             <Heading size="sm">Available Materials</Heading>
@@ -468,6 +470,8 @@ const AddMaterialCostPage = () => {
                               <FiSearch color="gray.300" />
                             </InputLeftElement>
                             <Input
+                              id="materialRecordSearch"
+                              name="materialRecordSearch"
                               placeholder="Search materials..."
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
@@ -534,7 +538,7 @@ const AddMaterialCostPage = () => {
 
                     {/* Selected Materials Card */}
                     <Card variant="outline">
-                      <CardHeader p={3} bg={useColorModeValue("gray.50", "gray.700")} borderTopRadius="md">
+                      <CardHeader p={3} bg={sectionHeaderBg} borderTopRadius="md">
                         <Flex justify="space-between" align="center">
                           <Heading size="sm">Selected Materials</Heading>
                           <Badge colorScheme={selectedMaterials.length > 0 ? "green" : "gray"}>
@@ -583,7 +587,7 @@ const AddMaterialCostPage = () => {
                                           }
                                           width="90px"
                                         >
-                                          <NumberInputField />
+                                          <NumberInputField id={`materialUnitPrice-${material.id}`} name={`materialUnitPrice-${material.id}`} />
                                           <NumberInputStepper>
                                             <NumberIncrementStepper />
                                             <NumberDecrementStepper />
@@ -601,7 +605,7 @@ const AddMaterialCostPage = () => {
                                           }
                                           width="70px"
                                         >
-                                          <NumberInputField />
+                                          <NumberInputField id={`materialQuantity-${material.id}`} name={`materialQuantity-${material.id}`} />
                                           <NumberInputStepper>
                                             <NumberIncrementStepper />
                                             <NumberDecrementStepper />

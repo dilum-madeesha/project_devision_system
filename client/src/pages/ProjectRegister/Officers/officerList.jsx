@@ -274,6 +274,8 @@ const recordsPerPage = 8;
                 >
                     <HStack spacing={2}>
                         <Input
+                            id="officerListSearch"
+                            name="officerListSearch"
                             size="sm"
                             width="260px"
                             placeholder="Search EPF, name, email, division..."
@@ -281,6 +283,8 @@ const recordsPerPage = 8;
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <Select
+                            id="officerListStatusFilter"
+                            name="officerListStatusFilter"
                             size="sm"
                             width="140px"
                             placeholder="All Status"

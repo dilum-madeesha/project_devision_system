@@ -469,8 +469,10 @@ const MonthlyLaborCostReport = () => {
               
               <HStack spacing={4} align="end" flexWrap="wrap">
                 <FormControl maxW="120px">
-                  <FormLabel fontSize="sm">Year</FormLabel>
+                  <FormLabel htmlFor="monthlyLaborCostYear" fontSize="sm">Year</FormLabel>
                   <Select
+                    id="monthlyLaborCostYear"
+                    name="monthlyLaborCostYear"
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     size="sm"
@@ -482,8 +484,10 @@ const MonthlyLaborCostReport = () => {
                 </FormControl>
 
                 <FormControl maxW="150px">
-                  <FormLabel fontSize="sm">Month</FormLabel>
+                  <FormLabel htmlFor="monthlyLaborCostMonth" fontSize="sm">Month</FormLabel>
                   <Select
+                    id="monthlyLaborCostMonth"
+                    name="monthlyLaborCostMonth"
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
                     size="sm"

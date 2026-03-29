@@ -319,6 +319,8 @@ const AgreementList = () => {
                     <HStack justify="space-between" align="center" flexWrap="wrap">
                         <HStack spacing={3} flexWrap="wrap">
                             <Input
+                                id="agreementListSearch"
+                                name="agreementListSearch"
                                 size="sm"
                                 width="260px"
                                 placeholder="Search agreement ID, project name..."
@@ -326,6 +328,8 @@ const AgreementList = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                             <Select
+                                id="agreementListStatusFilter"
+                                name="agreementListStatusFilter"
                                 size="sm"
                                 width="140px"
                                 placeholder="All Status"

@@ -528,8 +528,10 @@ const WeeklyLaborCostReport = () => {
               
               <HStack spacing={4} align="end" flexWrap="wrap">
                 <FormControl maxW="120px">
-                  <FormLabel fontSize="sm">Year</FormLabel>
+                  <FormLabel htmlFor="weeklyLaborCostYear" fontSize="sm">Year</FormLabel>
                   <Select
+                    id="weeklyLaborCostYear"
+                    name="weeklyLaborCostYear"
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     size="sm"
@@ -541,8 +543,10 @@ const WeeklyLaborCostReport = () => {
                 </FormControl>
 
                 <FormControl maxW="120px">
-                  <FormLabel fontSize="sm">Week</FormLabel>
+                  <FormLabel htmlFor="weeklyLaborCostWeek" fontSize="sm">Week</FormLabel>
                   <Select
+                    id="weeklyLaborCostWeek"
+                    name="weeklyLaborCostWeek"
                     value={selectedWeek}
                     onChange={(e) => setSelectedWeek(e.target.value)}
                     size="sm"
