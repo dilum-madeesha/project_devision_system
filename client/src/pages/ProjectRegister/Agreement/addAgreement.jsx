@@ -38,15 +38,12 @@ const AddAgreement = () => {
     const textColor = useColorModeValue("gray.600", "gray.400");
 
     const [formData, setFormData] = useState({
-        agreementNo: "",
         agreementID: "",
-        projectName: "",
         agreementSum: "",
         vat: "",
         periodDays: "",
         awardDate: "",
         startDate: "",
-        completionDate: "",
         status: "ACTIVE",
     });
 
@@ -70,23 +67,20 @@ const AddAgreement = () => {
         setLoading(true);
         setError("");
 
-        if (!formData.agreementNo || !formData.projectName || !formData.agreementSum) {
-            setError("Please fill in all required fields (Agreement No, Project Name, Agreement Sum)");
+        if (!formData.agreementID || !formData.agreementSum) {
+            setError("Please fill in all required fields (Agreement ID, Agreement Sum)");
             setLoading(false);
             return;
         }
 
         try {
             const submitData = {
-                agreementNo: formData.agreementNo,
                 agreementID: formData.agreementID || null,
-                projectName: formData.projectName,
                 agreementSum: parseFloat(formData.agreementSum),
                 vat: formData.vat ? parseFloat(formData.vat) : 0,
                 periodDays: formData.periodDays ? parseInt(formData.periodDays, 10) : null,
                 awardDate: formData.awardDate ? new Date(formData.awardDate).toISOString() : null,
                 startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
-                completionDate: formData.completionDate ? new Date(formData.completionDate).toISOString() : null,
                 status: formData.status,
             };
 
@@ -162,41 +156,15 @@ const AddAgreement = () => {
                     <Box p={6}>
                     <form onSubmit={handleSubmit}>
                         <VStack spacing={6}>
-                            {/* Agreement No */}
-                            <FormControl isRequired>
-                                <FormLabel htmlFor="agreementNo">Agreement No</FormLabel>
-                                <Input
-                                    id="agreementNo"
-                                    name="agreementNo"
-                                    value={formData.agreementNo}
-                                    onChange={handleChange}
-                                    placeholder="Enter agreement number (e.g., AGR-001)"
-                                    borderColor={borderColor}
-                                />
-                            </FormControl>
-
                             {/* Agreement ID */}
-                            <FormControl>
-                                <FormLabel htmlFor="agreementID">Agreement ID (Optional)</FormLabel>
+                            <FormControl isRequired>
+                                <FormLabel htmlFor="agreementID">Agreement ID</FormLabel>
                                 <Input
                                     id="agreementID"
                                     name="agreementID"
                                     value={formData.agreementID}
                                     onChange={handleChange}
                                     placeholder="Enter agreement ID"
-                                    borderColor={borderColor}
-                                />
-                            </FormControl>
-
-                            {/* Project Name */}
-                            <FormControl isRequired>
-                                <FormLabel htmlFor="projectName">Project Name</FormLabel>
-                                <Input
-                                    id="projectName"
-                                    name="projectName"
-                                    value={formData.projectName}
-                                    onChange={handleChange}
-                                    placeholder="Enter project name"
                                     borderColor={borderColor}
                                 />
                             </FormControl>
@@ -279,17 +247,6 @@ const AddAgreement = () => {
                                 </GridItem>
                             </Grid>
 
-                            <FormControl w="full">
-                                <FormLabel htmlFor="completionDate">Completion Date</FormLabel>
-                                <Input
-                                    id="completionDate"
-                                    type="date"
-                                    name="completionDate"
-                                    value={formData.completionDate}
-                                    onChange={handleChange}
-                                    borderColor={borderColor}
-                                />
-                            </FormControl>
                             {/* Status Field */}
                             <FormControl w="full">
                                 <FormLabel htmlFor="status">Status</FormLabel>

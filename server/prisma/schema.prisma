@@ -274,15 +274,12 @@ model Officer {
 
 model Agreement {
   id                 Int       @id @default(autoincrement())
-  agreementNo        String    @unique
   agreementID        String?   @unique
-  projectName        String
   agreementSum       Float
   vat                Float?    @default(0)
   periodDays         Int?
   awardDate          DateTime?
   startDate          DateTime?
-  completionDate     DateTime?
   status             AgreementStatus @default(ACTIVE)
   description        String?
   createdById        Int?
@@ -360,5 +357,6 @@ enum ProjectStatus {
 enum OfficerRole {
   ENGINEER
   TECHNICAL_OFFICER
+  QS_OFFICER
   SECRETARY
 }

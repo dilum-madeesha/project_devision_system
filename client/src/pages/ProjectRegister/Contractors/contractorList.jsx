@@ -34,7 +34,7 @@ import {
     FormLabel,
     useToast,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useState, useEffect } from "react";
 import { contractorAPI } from "../../../api/contractors.js";
@@ -46,7 +46,7 @@ export default function ContractorListPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const recordsPerPage = 10;
+    const recordsPerPage = 8;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -69,11 +69,12 @@ export default function ContractorListPage() {
 
     const { user } = useAuth();
     const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER";
+    const location = useLocation();
 
-    // Fetch contractors
+    // Fetch contractors on mount and when returning to this page
     useEffect(() => {
         fetchContractors();
-    }, []);
+    }, [location]);
 
     useEffect(() => {
         applyFilters();
@@ -186,65 +187,64 @@ export default function ContractorListPage() {
     };
 
     return (
-        <Container maxW="1300px" py={2}>
-            <VStack spacing={2} align="stretch">
+        <Container maxW="1300px" py={4}>
+            <VStack spacing={4} align="stretch">
                 {/* Breadcrumb */}
-                <Breadcrumb fontSize="sm" color="purple.600" mb={0.1} py={0.2}>
+                <Breadcrumb fontSize="sm" color="purple.600" >
                     <BreadcrumbItem>
                         <BreadcrumbLink as={Link} to="/projectregister" color="purple.500">
                             Register
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbItem isCurrentPage>
-                        <BreadcrumbLink color="purple.500" fontWeight="bold" fontSize="medium">
-                            Contractors
+                        <BreadcrumbLink color="purple.500" fontWeight="bold" fontSize="x-medium">
+                            Contractors List
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                 </Breadcrumb>
 
+
+
                 {/* Header */}
-                <Flex justify="space-between" mb={4}>
+                <Flex justify="space-between" gap={4} flexWrap="wrap">
                     <Box>
-                        <Text color="gray.600" fontSize="x-large">Contractors List</Text>
+                        <Text color="gray.600" fontSize="sm">
+                            Manage project Contractors and their details
+                        </Text>
                     </Box>
                     <Link to="/projectRegister/contractors/add">
-                        <Button leftIcon={<FiPlus />} colorScheme="purple">
+                        <Button leftIcon={<FiPlus />} colorScheme="purple" size="sm">
                             Add Contractor
                         </Button>
                     </Link>
                 </Flex>
 
                 {/* Error */}
-                {/* {error && (
-                    <Box p={4} borderWidth="1px" borderColor="red.300" bg="red.50" borderRadius="md">
-                        <Text color="red.700" fontWeight="bold">Error Loading Contractors</Text>
-                        <Text>{error}</Text>
-                        <Button mt={2} size="sm" onClick={fetchContractors}>Try Again</Button>
-                    </Box>
-                )} */}
                 {error && (
-                                    <Alert status="error">
-                                        <AlertIcon />
-                                        {error}
-                                    </Alert>
-                                )}
+                    <Alert status="error">
+                        <AlertIcon />
+                        {error}
+                    </Alert>
+                )}
 
                 {/* Filters */}
-                <Flex mb={4} gap={3} flexWrap="wrap">
+                <Flex mb={4} gap={3} flexWrap="wrap" align="center">
                     <Input
                         id="contractorListSearch"
                         name="contractorListSearch"
                         placeholder="Search..."
                         value={searchTerm}
+                        bg="white"
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        maxW="300px"
+                        maxW="260px"
                     />
                     <Select
                         id="contractorListStatusFilter"
                         name="contractorListStatusFilter"
                         value={statusFilter}
+                        bg="white"
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        maxW="150px"
+                        maxW="140px"
                     >
                         <option value="">All</option>
                         <option value="active">Active</option>
@@ -259,44 +259,40 @@ export default function ContractorListPage() {
 
                 {/* Table */}
                 <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
-                    <TableContainer>
-                        <Table variant="simple" size="sm">
-                            <Thead bg="purple.50">
+                    <TableContainer overflowX="hidden">
+                        <Table variant="simple" size="sm" sx={{ tableLayout: "fixed" }}>
+                            <Thead bg="purple.100">
                                 <Tr>
-                                    <Th>Company</Th>
-                                    <Th>Contact</Th>
-                                    <Th>Email</Th>
-                                    <Th>Phone</Th>
-                                    <Th>Register No</Th>
-                                    <Th>Specialization</Th>
-                                    <Th>Experience</Th>
-                                    <Th>Branches</Th>
-                                    <Th>Status</Th>
-                                    <Th>Description</Th>
-                                    {canEdit && <Th>Actions</Th>}
+                                    <Th fontSize="xs" px={2} py={2} w="12%">Register No</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="16%">Company</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="14%">Person Name</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="18%">Email</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="12%">Phone</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="10%">Experience</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="12%">Branches</Th>
+                                    <Th fontSize="xs" px={2} py={2} w="10%">Status</Th>
+                                    {canEdit && <Th fontSize="xs" px={2} py={2} w="6%">Actions</Th>}
                                 </Tr>
                             </Thead>
-                            <Tbody>
+                            <Tbody bg="white">
                                 {paginatedContractors.map((c) => (
                                     <Tr key={c.id}>
-                                        <Td>{c.companyName}</Td>
-                                        <Td>{c.contactPerson}</Td>
-                                        <Td color="purple.500">{c.email}</Td>
-                                        <Td>{c.phone}</Td>
-                                        <Td>{c.registrationNo}</Td>
-                                        <Td>{c.specialization}</Td>
-                                        <Td>{c.experienceYears}</Td>
-                                        <Td>{c.branches}</Td>
-                                        <Td>
+                                        <Td fontSize="xs" px={2} py={2} wordBreak="break-word">{c.registrationNo}</Td>
+                                        <Td fontSize="xs" px={2} py={2} wordBreak="break-word">{c.companyName}</Td>
+                                        <Td fontSize="xs" px={2} py={2} wordBreak="break-word">{c.contactPerson}</Td>
+                                        <Td fontSize="xs" px={2} py={2} color="purple.500" wordBreak="break-word">{c.email}</Td>
+                                        <Td fontSize="xs" px={2} py={2} wordBreak="break-word">{c.phone}</Td>
+                                        <Td fontSize="xs" px={2} py={2}>{c.experienceYears}</Td>
+                                        <Td fontSize="xs" px={2} py={2} wordBreak="break-word">{c.branches}</Td>
+                                        <Td fontSize="xs" px={2} py={2}>
                                             <Badge colorScheme={c.isActive ? "green" : "red"}>
                                                 {c.isActive ? "Active" : "Inactive"}
                                             </Badge>
                                         </Td>
-                                        <Td>{c.description}</Td>
                                         {canEdit && (
-                                            <Td>
-                                                <IconButton icon={<FiEdit2 />} mr={2} onClick={() => handleEdit(c)} />
-                                                <IconButton icon={<FiTrash2 />} colorScheme="red" onClick={() => handleDelete(c.id)} />
+                                            <Td px={2} py={2}>
+                                                <IconButton size="xs" icon={<FiEdit2 />} mr={1} onClick={() => handleEdit(c)} aria-label="Edit contractor" />
+                                                <IconButton size="xs" icon={<FiTrash2 />} colorScheme="purple" onClick={() => handleDelete(c.id)} aria-label="Delete contractor" />
                                             </Td>
                                         )}
                                     </Tr>
@@ -315,24 +311,24 @@ export default function ContractorListPage() {
                                 : "No contractors have been registered yet"}
                         </Heading>
                         {searchTerm || statusFilter ? (
-                <Text color="gray.500">
-                  No contractors match your search criteria. Try
-                  adjusting your filters or search terms.
-                </Text>
-              ) : (
-                <>
-                  <Text color="gray.500" mb={4}>
-                    No contractors have been registered yet.
-                  </Text>
-                  {canEdit && (
-                    <Link to="/projectregister/contractors/add">
-                      <Button colorScheme="purple">
-                        Add Your First Contractor
-                      </Button>
-                    </Link>
-                  )}
-                </>
-              )}
+                            <Text color="gray.500">
+                                No contractors match your search criteria. Try
+                                adjusting your filters or search terms.
+                            </Text>
+                        ) : (
+                            <>
+                                <Text color="gray.500" mb={4}>
+                                    No contractors have been registered yet.
+                                </Text>
+                                {canEdit && (
+                                    <Link to="/projectregister/contractors/add">
+                                        <Button colorScheme="purple">
+                                            Add Your First Contractor
+                                        </Button>
+                                    </Link>
+                                )}
+                            </>
+                        )}
                     </Box>
                 )}
 

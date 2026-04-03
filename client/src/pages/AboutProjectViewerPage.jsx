@@ -78,9 +78,6 @@ const AboutProjectViewerPage = () => {
   ];
 
   const accessLevels = [
-    { level: "L7 - Material Cost Manager", color: "gray", permissions: "Material cost access: add material cost, material register" },
-    { level: "L6 - Labor Cost Manager", color: "green", permissions: "Labor cost access: add labor cost only" },
-    { level: "L5 - Job Cost Manager", color: "purple", permissions: "Job cost access: add labor & material cost, labor & material register, job report, Labor Report & Labor Distribution" },
     { level: "L4 - Registration Manager", color: "blue", permissions: "Registration access: Job, labor, material register pages" },
     { level: "L3 - Operation Manager", color: "yellow", permissions: "Management access: Register, Dashboards, Reports" },
     { level: "L2 - Operation Viewer", color: "orange", permissions: "View Progress: Dashboards & Reports (read-only)" },

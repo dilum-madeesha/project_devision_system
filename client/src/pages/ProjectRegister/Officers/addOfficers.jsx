@@ -204,6 +204,7 @@ const AddOfficerPage = () => {
                     >
                       <option value="">Select designation</option>
                       <option value="Engineer">Engineer</option>
+                      <option value="QS Officer">QS Officer</option>
                       <option value="Technical Officer">Technical Officer</option>
                       <option value="Secretary">Secretary</option>
                     </Select>

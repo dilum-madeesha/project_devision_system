@@ -66,7 +66,7 @@ export default function ProjectSetup() {
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const pageBg = useColorModeValue("gray.50", "gray.900");
   const headerBg = useColorModeValue("#FFF8F0", "gray.700");
-  const headerBorderColor = useColorModeValue("orange.200", "orange.700");
+  const headerBorderColor = useColorModeValue("yellow.200", "yellow.700");
   const textColor = useColorModeValue("gray.500", "gray.400");
   // ─────────────────────────────────────────────────────────────
 
@@ -78,6 +78,8 @@ export default function ProjectSetup() {
   const [agreements, setAgreements] = useState([]);
   const [contractors, setContractors] = useState([]);
   const [officers, setOfficers] = useState([]);
+  const [agreementSearch, setAgreementSearch] = useState("");
+  const [contractorSearch, setContractorSearch] = useState("");
   const [selectedActivities, setSelectedActivities] = useState([]);
 
   // expense tracking
@@ -95,13 +97,36 @@ export default function ProjectSetup() {
     contractorId: "",
     engineerId: "",
     technicalOfficerId: "",
+    qsOfficerId: "",
     secretaryId: "",
   });
 
   // ── Derived officer lists ─────────────────────────────────────
   const engineers = officers.filter(o => o.designation?.toLowerCase() === "engineer");
   const technicalOfficers = officers.filter(o => o.designation?.toLowerCase() === "technical officer");
+  const qsOfficers = officers.filter(o => o.designation?.toLowerCase() === "qs officer");
   const secretaries = officers.filter(o => o.designation?.toLowerCase() === "secretary");
+  const filteredAgreements = agreements.filter((agreement) => {
+    const searchText = agreementSearch.trim().toLowerCase();
+    if (!searchText) return true;
+
+    return [agreement.agreementID, agreement.description]
+      .filter(Boolean)
+      .some(value => String(value).toLowerCase().includes(searchText));
+  });
+  const filteredContractors = contractors.filter((contractor) => {
+    const searchText = contractorSearch.trim().toLowerCase();
+    if (!searchText) return true;
+
+    return [
+      contractor.companyName,
+      contractor.registrationNo,
+      contractor.contactPerson,
+      contractor.specialization,
+    ]
+      .filter(Boolean)
+      .some(value => String(value).toLowerCase().includes(searchText));
+  });
 
   // ── Data loading ──────────────────────────────────────────────
   useEffect(() => {
@@ -162,6 +187,7 @@ export default function ProjectSetup() {
         contractorId: project.contractorId || "",
         engineerId: project.officerAssignments?.find(a => a.role === "ENGINEER")?.officerId || "",
         technicalOfficerId: project.officerAssignments?.find(a => a.role === "TECHNICAL_OFFICER")?.officerId || "",
+        qsOfficerId: project.officerAssignments?.find(a => a.role === "QS_OFFICER")?.officerId || "",
         secretaryId: project.officerAssignments?.find(a => a.role === "SECRETARY")?.officerId || "",
         totalExpense: project.totalExpense || 0,
       });
@@ -232,6 +258,7 @@ export default function ProjectSetup() {
       const officerAssignments = [];
       if (formData.engineerId) officerAssignments.push({ officerId: parseInt(formData.engineerId), role: "ENGINEER" });
       if (formData.technicalOfficerId) officerAssignments.push({ officerId: parseInt(formData.technicalOfficerId), role: "TECHNICAL_OFFICER" });
+      if (formData.qsOfficerId) officerAssignments.push({ officerId: parseInt(formData.qsOfficerId), role: "QS_OFFICER" });
       if (formData.secretaryId) officerAssignments.push({ officerId: parseInt(formData.secretaryId), role: "SECRETARY" });
 
       const submitData = {
@@ -286,8 +313,8 @@ export default function ProjectSetup() {
     return (
       <Box h="100vh" display="flex" alignItems="center" justifyContent="center" bg={pageBg}>
         <VStack spacing={4}>
-          <Spinner size="xl" color="orange.400" />
-          <Text color="orange.400" fontWeight="medium">Loading data...</Text>
+          <Spinner size="xl" color="yellow.400" />
+          <Text color="yellow.400" fontWeight="medium">Loading data...</Text>
         </VStack>
       </Box>
     );
@@ -314,7 +341,7 @@ export default function ProjectSetup() {
   // ── Render ────────────────────────────────────────────────────
   return (
     <Box w="100%" minH="calc(100vh - 64px)" px={{ base: 2, md: 4, lg: 6 }} py={6} bg={pageBg}>
-      <Container maxW="900px">
+      <Container maxW="1300px">
         <form onSubmit={handleSubmit}>
           <Box maxH="calc(100vh - 150px)" overflowY="auto" p={6} bg={bg} border="1px solid" borderColor={borderColor} borderRadius="lg">
             <VStack spacing={5} align="stretch">
@@ -322,19 +349,19 @@ export default function ProjectSetup() {
               {/* Breadcrumb */}
               <Breadcrumb fontSize="sm" separator="/">
                 <BreadcrumbItem>
-                  <BreadcrumbLink as={Link} to="/createProject" color="orange.500">
+                  <BreadcrumbLink as={Link} to="/createProject" color="yellow.500">
                     Projects
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem>
-                  <BreadcrumbLink as={Link} to="/createproject/collectProject/list" color="orange.500">
+                  <BreadcrumbLink as={Link} to="/createproject/collectProject/list" color="yellow.500">
                     Project List
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem isCurrentPage>
-                  <BreadcrumbLink color="orange.500" size="sm" fontWeight="bold">
+                  <BreadcrumbLink color="yellow.500" size="sm" fontWeight="bold">
                     {isEditMode ? "Edit Project" : "Create New Project"}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -342,7 +369,7 @@ export default function ProjectSetup() {
 
               {/* Page title */}
               <Box>
-                <Heading size="lg" color="orange.500" fontWeight="bold" letterSpacing="tight">
+                <Heading size="lg" color="yellow.500" fontWeight="bold" letterSpacing="tight">
                   {isEditMode ? "Edit Project" : "Create New Project"}
                 </Heading>
                 <Text color="gray.500" fontSize="sm" mt={1}>
@@ -363,8 +390,8 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiCalendar /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Details</Heading>
+                    <Box color="yellow.400"><FiCalendar /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Project Details</Heading>
                   </Flex>
                 </CardHeader>
                 <CardBody px={5} py={5}>
@@ -374,8 +401,8 @@ export default function ProjectSetup() {
                         <FormLabel htmlFor="projectId" fontSize="sm" fontWeight="semibold" color="gray.600">Project ID</FormLabel>
                         <Input id="projectId" name="projectId" value={formData.projectId} onChange={handleChange}
                           autoComplete="off"
-                          placeholder="e.g., PRJ-001" focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                          placeholder="e.g., PRJ-001" focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
@@ -383,15 +410,15 @@ export default function ProjectSetup() {
                         <FormLabel htmlFor="projectName" fontSize="sm" fontWeight="semibold" color="gray.600">Project Name</FormLabel>
                         <Input id="projectName" name="projectName" value={formData.projectName} onChange={handleChange}
                           autoComplete="off"
-                          placeholder="Enter project name" focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                          placeholder="Enter project name" focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
                       <FormControl>
                         <FormLabel htmlFor="status" fontSize="sm" fontWeight="semibold" color="gray.600">Status</FormLabel>
                         <Select id="status" name="status" value={formData.status} onChange={handleChange}
-                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          focusBorderColor="yellow.400" borderColor={borderColor} _hover={{ borderColor: "yellow.300" }}>
                           <option value="PLANNING">Planning</option>
                           <option value="IN_PROGRESS">In Progress</option>
                           <option value="ON_HOLD">On Hold</option>
@@ -405,8 +432,8 @@ export default function ProjectSetup() {
                         <FormLabel htmlFor="description" fontSize="sm" fontWeight="semibold" color="gray.600">Description</FormLabel>
                         <Input id="description" name="description" value={formData.description} onChange={handleChange}
                           autoComplete="off"
-                          placeholder="Enter description" focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                          placeholder="Enter description" focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
@@ -414,7 +441,7 @@ export default function ProjectSetup() {
                         <FormLabel htmlFor="startDate" fontSize="sm" fontWeight="semibold" color="gray.600">Start Date</FormLabel>
                         <Input id="startDate" name="startDate" type="date" value={formData.startDate} onChange={handleChange}
                           autoComplete="off"
-                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                          focusBorderColor="yellow.400" borderColor={borderColor} _hover={{ borderColor: "yellow.300" }} />
                       </FormControl>
                     </GridItem>
                     <GridItem>
@@ -422,7 +449,7 @@ export default function ProjectSetup() {
                         <FormLabel htmlFor="endDate" fontSize="sm" fontWeight="semibold" color="gray.600">End Date</FormLabel>
                         <Input id="endDate" name="endDate" type="date" value={formData.endDate} onChange={handleChange}
                           autoComplete="off"
-                          focusBorderColor="orange.400" borderColor={borderColor} _hover={{ borderColor: "orange.300" }} />
+                          focusBorderColor="yellow.400" borderColor={borderColor} _hover={{ borderColor: "yellow.300" }} />
                       </FormControl>
                     </GridItem>
                   </Grid>
@@ -433,9 +460,9 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiCheckSquare /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Activities</Heading>
-                    <Badge ml={2} colorScheme="orange" borderRadius="full" px={2}>
+                    <Box color="yellow.400"><FiCheckSquare /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Project Activities</Heading>
+                    <Badge ml={2} colorScheme="yellow" borderRadius="full" px={2}>
                       {selectedActivities.length} selected
                     </Badge>
                   </Flex>
@@ -447,16 +474,16 @@ export default function ProjectSetup() {
                         <Flex
                           gap={3} align="flex-start" p={3} borderRadius="md"
                           border="1px solid"
-                          borderColor={selectedActivities.includes(activity.id) ? "orange.300" : borderColor}
-                          bg={selectedActivities.includes(activity.id) ? "orange.50" : "transparent"}
-                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          borderColor={selectedActivities.includes(activity.id) ? "yellow.300" : borderColor}
+                          bg={selectedActivities.includes(activity.id) ? "yellow.50" : "transparent"}
+                          _hover={{ borderColor: "yellow.200", bg: "yellow.50" }}
                           transition="all 0.15s" cursor="pointer"
                           onClick={() => handleCheckboxChange(activity.id)}
                         >
                           <Checkbox
                             isChecked={selectedActivities.includes(activity.id)}
                             onChange={() => { }}
-                            colorScheme="orange" mt={0.5} pointerEvents="none"
+                            colorScheme="yellow" mt={0.5} pointerEvents="none"
                           />
                           <Box>
                             <Text fontWeight="semibold" fontSize="sm">{activity.icon} {activity.action}</Text>
@@ -474,8 +501,8 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiAlertCircle /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Expense</Heading>
+                    <Box color="yellow.400"><FiAlertCircle /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Project Expense</Heading>
                     <Text ml="auto" fontSize="sm" fontWeight="semibold">
                       Total: Rs. {expenseEntries.reduce((a,b)=>a+b,0).toLocaleString()}
                     </Text>
@@ -493,7 +520,7 @@ export default function ProjectSetup() {
                       onChange={e => setNewExpense(e.target.value)}
                       flex="1"
                     />
-                    <Button size="sm" colorScheme="orange" onClick={() => {
+                    <Button size="sm" colorScheme="yellow" onClick={() => {
                       const val = parseFloat(newExpense);
                       if (!isNaN(val)) {
                         setExpenseEntries(prev => [...prev, val]);
@@ -525,40 +552,49 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiCheckSquare /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Select Agreement</Heading>
+                    <Box color="yellow.400"><FiCheckSquare /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Select Agreement</Heading>
                     {formData.agreementId && (
                       <Badge ml={2} colorScheme="green" borderRadius="full" px={2}>Selected</Badge>
                     )}
                   </Flex>
                 </CardHeader>
                 <CardBody px={5} py={4}>
-                  <Grid templateColumns="1fr" gap={3}>
-                    {agreements.length === 0 ? (
+                  <VStack align="stretch" spacing={3}>
+                    <Input
+                      size="sm"
+                      value={agreementSearch}
+                      onChange={(e) => setAgreementSearch(e.target.value)}
+                      placeholder="Search agreement ID"
+                      autoComplete="off"
+                      focusBorderColor="yellow.400"
+                      borderColor={borderColor}
+                    />
+                    <Grid templateColumns="1fr" gap={3}>
+                    {filteredAgreements.length === 0 ? (
                       <Text fontSize="sm" color={textColor}>No active agreements found.</Text>
-                    ) : agreements.map((agreement) => (
+                    ) : filteredAgreements.map((agreement) => (
                       <GridItem key={agreement.id}>
                         <Flex
                           gap={3} align="flex-start" p={3} borderRadius="md"
                           border="1px solid"
-                          borderColor={formData.agreementId === agreement.id ? "orange.300" : borderColor}
-                          bg={formData.agreementId === agreement.id ? "orange.50" : "transparent"}
-                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          borderColor={formData.agreementId === agreement.id ? "yellow.300" : borderColor}
+                          bg={formData.agreementId === agreement.id ? "yellow.50" : "transparent"}
+                          _hover={{ borderColor: "yellow.200", bg: "yellow.50" }}
                           transition="all 0.15s" cursor="pointer"
                           onClick={() => setFormData(prev => ({ ...prev, agreementId: agreement.id }))}
                         >
                           <Radio
                             isChecked={formData.agreementId === agreement.id}
-                            onChange={() => { }} colorScheme="orange" mt={0.5} pointerEvents="none"
+                            onChange={() => { }} colorScheme="yellow" mt={0.5} pointerEvents="none"
                           />
                           <Box>
                             <Text fontWeight="semibold" fontSize="sm">
-                              {agreement.agreementNo} — {agreement.projectName}&nbsp;|&nbsp;Rs.{agreement.agreementSum?.toLocaleString()}
+                              {agreement.agreementID || `Agreement #${agreement.id}`}&nbsp;|&nbsp;Rs.{agreement.agreementSum?.toLocaleString()}
                             </Text>
                             <Text fontSize="xs" color={textColor} mt={0.5}>
                               Period: {agreement.periodDays} days&nbsp;|&nbsp;
                               Start: {agreement.startDate ? new Date(agreement.startDate).toLocaleDateString() : "N/A"}&nbsp;|&nbsp;
-                              End: {agreement.completionDate ? new Date(agreement.completionDate).toLocaleDateString() : "N/A"}
                             </Text>
                             <Badge mt={1} borderRadius="full" px={2} fontSize="xs"
                               colorScheme={agreement.status === "ACTIVE" ? "green" : agreement.status === "PENDING" ? "yellow" : "red"}>
@@ -568,7 +604,8 @@ export default function ProjectSetup() {
                         </Flex>
                       </GridItem>
                     ))}
-                  </Grid>
+                    </Grid>
+                  </VStack>
                 </CardBody>
               </Card>
 
@@ -576,31 +613,41 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiUser /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Select Contractor</Heading>
+                    <Box color="yellow.400"><FiUser /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Select Contractor</Heading>
                     {formData.contractorId && (
                       <Badge ml={2} colorScheme="green" borderRadius="full" px={2}>Selected</Badge>
                     )}
                   </Flex>
                 </CardHeader>
                 <CardBody px={5} py={4}>
-                  <Grid templateColumns="1fr" gap={3}>
-                    {contractors.length === 0 ? (
+                  <VStack align="stretch" spacing={3}>
+                    <Input
+                      size="sm"
+                      value={contractorSearch}
+                      onChange={(e) => setContractorSearch(e.target.value)}
+                      placeholder="Search contractor"
+                      autoComplete="off"
+                      focusBorderColor="yellow.400"
+                      borderColor={borderColor}
+                    />
+                    <Grid templateColumns="1fr" gap={3}>
+                    {filteredContractors.length === 0 ? (
                       <Text fontSize="sm" color={textColor}>No active contractors found.</Text>
-                    ) : contractors.map((contractor) => (
+                    ) : filteredContractors.map((contractor) => (
                       <GridItem key={contractor.id}>
                         <Flex
                           gap={3} align="flex-start" p={3} borderRadius="md"
                           border="1px solid"
-                          borderColor={formData.contractorId === contractor.id ? "orange.300" : borderColor}
-                          bg={formData.contractorId === contractor.id ? "orange.50" : "transparent"}
-                          _hover={{ borderColor: "orange.200", bg: "orange.50" }}
+                          borderColor={formData.contractorId === contractor.id ? "yellow.300" : borderColor}
+                          bg={formData.contractorId === contractor.id ? "yellow.50" : "transparent"}
+                          _hover={{ borderColor: "yellow.200", bg: "yellow.50" }}
                           transition="all 0.15s" cursor="pointer"
                           onClick={() => setFormData(prev => ({ ...prev, contractorId: contractor.id }))}
                         >
                           <Radio
                             isChecked={formData.contractorId === contractor.id}
-                            onChange={() => { }} colorScheme="orange" mt={0.5} pointerEvents="none"
+                            onChange={() => { }} colorScheme="yellow" mt={0.5} pointerEvents="none"
                           />
                           <Box>
                             <Text fontWeight="semibold" fontSize="sm">
@@ -620,7 +667,8 @@ export default function ProjectSetup() {
                         </Flex>
                       </GridItem>
                     ))}
-                  </Grid>
+                    </Grid>
+                  </VStack>
                 </CardBody>
               </Card>
 
@@ -628,8 +676,8 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiUser /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Assign Officers</Heading>
+                    <Box color="yellow.400"><FiUser /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Assign Officers</Heading>
                   </Flex>
                 </CardHeader>
                 <CardBody px={5} py={5}>
@@ -638,8 +686,8 @@ export default function ProjectSetup() {
                       <FormControl isRequired>
                         <FormLabel htmlFor="engineerId" fontSize="sm" fontWeight="semibold" color="gray.600">Engineer</FormLabel>
                         <Select id="engineerId" placeholder="Select Engineer" name="engineerId" value={formData.engineerId}
-                          onChange={handleChange} focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          onChange={handleChange} focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }}>
                           {engineers.map(e => (
                             <option key={e.id} value={e.id}>{e.officerNo} - {e.fullName} ({e.division})</option>
                           ))}
@@ -650,9 +698,21 @@ export default function ProjectSetup() {
                       <FormControl isRequired>
                         <FormLabel htmlFor="technicalOfficerId" fontSize="sm" fontWeight="semibold" color="gray.600">Technical Officer</FormLabel>
                         <Select id="technicalOfficerId" placeholder="Select Technical Officer" name="technicalOfficerId" value={formData.technicalOfficerId}
-                          onChange={handleChange} focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          onChange={handleChange} focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }}>
                           {technicalOfficers.map(o => (
+                            <option key={o.id} value={o.id}>{o.officerNo} - {o.fullName} ({o.division})</option>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </GridItem>
+                    <GridItem>
+                      <FormControl isRequired>
+                        <FormLabel htmlFor="qsOfficerId" fontSize="sm" fontWeight="semibold" color="gray.600">QS Officer</FormLabel>
+                        <Select id="qsOfficerId" placeholder="Select QS Officer" name="qsOfficerId" value={formData.qsOfficerId}
+                          onChange={handleChange} focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }}>
+                          {qsOfficers.map(o => (
                             <option key={o.id} value={o.id}>{o.officerNo} - {o.fullName} ({o.division})</option>
                           ))}
                         </Select>
@@ -662,8 +722,8 @@ export default function ProjectSetup() {
                       <FormControl isRequired>
                         <FormLabel htmlFor="secretaryId" fontSize="sm" fontWeight="semibold" color="gray.600">Secretary</FormLabel>
                         <Select id="secretaryId" placeholder="Select Secretary" name="secretaryId" value={formData.secretaryId}
-                          onChange={handleChange} focusBorderColor="orange.400"
-                          borderColor={borderColor} _hover={{ borderColor: "orange.300" }}>
+                          onChange={handleChange} focusBorderColor="yellow.400"
+                          borderColor={borderColor} _hover={{ borderColor: "yellow.300" }}>
                           {secretaries.map(s => (
                             <option key={s.id} value={s.id}>{s.officerNo} - {s.fullName} ({s.division})</option>
                           ))}
@@ -678,9 +738,9 @@ export default function ProjectSetup() {
               <Card {...cardProps}>
                 <CardHeader {...cardHeaderProps}>
                   <Flex align="center" gap={2}>
-                    <Box color="orange.400"><FiCamera /></Box>
-                    <Heading size="sm" color="orange.600" fontWeight="bold">Project Images</Heading>
-                    <Badge ml={2} colorScheme="orange" borderRadius="full" px={2}>
+                    <Box color="yellow.400"><FiCamera /></Box>
+                    <Heading size="sm" color="yellow.600" fontWeight="bold">Project Images</Heading>
+                    <Badge ml={2} colorScheme="yellow" borderRadius="full" px={2}>
                       {selectedImages.length} selected
                     </Badge>
                   </Flex>
@@ -694,8 +754,8 @@ export default function ProjectSetup() {
                       <Input id="image-upload" name="image-upload" type="file" accept="image/*" multiple
                         onChange={handleImageChange} display="none" />
                       <Button as="label" htmlFor="image-upload" variant="outline" cursor="pointer"
-                        leftIcon={<FiCamera />} w="full" borderColor="orange.300" color="orange.500"
-                        _hover={{ bg: "orange.50", borderColor: "orange.400" }}>
+                        leftIcon={<FiCamera />} w="full" borderColor="yellow.300" color="yellow.500"
+                        _hover={{ bg: "yellow.50", borderColor: "yellow.400" }}>
                         Choose Images
                       </Button>
                       <Text fontSize="xs" color={textColor} mt={2}>
@@ -738,8 +798,8 @@ export default function ProjectSetup() {
             </Link>
             <Button
               type="submit"
-              bg="orange.400" color="white"
-              _hover={{ bg: "orange.500" }} _active={{ bg: "orange.600" }}
+              bg="yellow.400" color="white"
+              _hover={{ bg: "yellow.500" }} _active={{ bg: "yellow.600" }}
               isLoading={loading}
               loadingText={isEditMode ? "Updating..." : "Creating..."}
               fontWeight="semibold" px={6} shadow="md"

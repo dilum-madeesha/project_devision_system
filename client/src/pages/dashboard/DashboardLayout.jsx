@@ -33,7 +33,7 @@ const DashboardLayout = () => {
   const activePage = getActivePageFromRoute(location.pathname);
 
   return (
-    <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={1}>
+    <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={4}>
       <Flex 
         direction={{ base: "column", lg: "row" }}
         gap={{ base: 2, md: 3, lg: 4 }}

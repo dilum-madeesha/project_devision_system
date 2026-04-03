@@ -18,17 +18,21 @@ import {
     Flex,
     Icon,
     SimpleGrid,
-    Stat,
-    StatLabel,
-    StatNumber,
+    Input,
+    InputGroup,
+    InputLeftElement,
+    Select,
 } from "@chakra-ui/react";
-import { FiBriefcase, FiPhone, FiMail, FiMapPin, FiUsers } from "react-icons/fi";
+import { FiBriefcase, FiPhone, FiMail, FiUsers, FiSearch } from "react-icons/fi";
 import { contractorAPI } from "../../../api/contractors.js";
 
 export default function ProjectContractor() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [contractors, setContractors] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [contractorFilter, setContractorFilter] = useState("All");
+    const [projectFilter, setProjectFilter] = useState("All");
 
     useEffect(() => {
         fetchContractors();
@@ -44,7 +48,20 @@ export default function ProjectContractor() {
             else if (response?.data && Array.isArray(response.data)) contractorsList = response.data;
             else if (Array.isArray(response)) contractorsList = response;
 
-            setContractors(contractorsList);
+            const normalizedContractors = contractorsList.map((contractor) => ({
+                ...contractor,
+                projects: Array.isArray(contractor?.projects) ? contractor.projects : [],
+                projectNames:
+                    Array.from(
+                        new Set(
+                            (Array.isArray(contractor?.projects) ? contractor.projects : [])
+                                .map((project) => project?.projectName)
+                                .filter(Boolean)
+                        )
+                    ).join(", ") || "N/A",
+            }));
+
+            setContractors(normalizedContractors);
         } catch (err) {
             console.error("Error fetching contractors:", err);
             setError("Failed to load contractors");
@@ -55,6 +72,39 @@ export default function ProjectContractor() {
 
     const activeContractors = contractors.filter(c => c.isActive).length;
     const inactiveContractors = contractors.filter(c => !c.isActive).length;
+
+    const contractorOptions = Array.from(
+        new Set(contractors.map((contractor) => contractor.companyName).filter(Boolean))
+    ).sort((a, b) => a.localeCompare(b));
+
+    const projectOptions = Array.from(
+        new Set(
+            contractors
+                .flatMap((contractor) =>
+                    (Array.isArray(contractor.projects) ? contractor.projects : [])
+                        .map((project) => project?.projectName)
+                        .filter(Boolean)
+                )
+        )
+    ).sort((a, b) => a.localeCompare(b));
+
+    const filteredContractors = contractors.filter((contractor) => {
+        const term = searchTerm.toLowerCase();
+        const matchesSearch =
+            contractor.companyName?.toLowerCase().includes(term) ||
+            contractor.projectNames?.toLowerCase().includes(term);
+
+        const matchesContractor =
+            contractorFilter === "All" || contractor.companyName === contractorFilter;
+
+        const matchesProject =
+            projectFilter === "All" ||
+            (Array.isArray(contractor.projects)
+                ? contractor.projects.some((project) => project?.projectName === projectFilter)
+                : false);
+
+        return matchesSearch && matchesContractor && matchesProject;
+    });
 
     if (loading) {
         return (
@@ -115,6 +165,52 @@ export default function ProjectContractor() {
                 </Box>
             </SimpleGrid>
 
+            {/* Filters */}
+            <Box bg="white" p={4} borderRadius="xl" borderWidth={1} borderColor="gray.100" mb={6}>
+                <HStack spacing={4} flexWrap="wrap">
+                    <InputGroup maxW="320px">
+                        <InputLeftElement pointerEvents="none">
+                            <FiSearch color="gray" />
+                        </InputLeftElement>
+                        <Input
+                            id="projectContractorSearch"
+                            name="projectContractorSearch"
+                            placeholder="Search by contractor or project..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </InputGroup>
+                    <Select
+                        id="projectContractorNameFilter"
+                        name="projectContractorNameFilter"
+                        maxW="260px"
+                        value={contractorFilter}
+                        onChange={(e) => setContractorFilter(e.target.value)}
+                    >
+                        <option value="All">All Contractors</option>
+                        {contractorOptions.map((contractorName) => (
+                            <option key={contractorName} value={contractorName}>
+                                {contractorName}
+                            </option>
+                        ))}
+                    </Select>
+                    <Select
+                        id="projectContractorProjectFilter"
+                        name="projectContractorProjectFilter"
+                        maxW="260px"
+                        value={projectFilter}
+                        onChange={(e) => setProjectFilter(e.target.value)}
+                    >
+                        <option value="All">All Projects</option>
+                        {projectOptions.map((projectName) => (
+                            <option key={projectName} value={projectName}>
+                                {projectName}
+                            </option>
+                        ))}
+                    </Select>
+                </HStack>
+            </Box>
+
             {/* Contractors Table */}
             <Box bg="white" p={6} borderRadius="xl" borderWidth={1} borderColor="gray.100" overflowX="auto">
                 <Heading size="md" mb={4}>👷 All Contractors</Heading>
@@ -123,6 +219,7 @@ export default function ProjectContractor() {
                         <Tr>
                             <Th>No</Th>
                             <Th>Company Name</Th>
+                            <Th>Project Name</Th>
                             <Th>Contact Person</Th>
                             <Th>Reg No</Th>
                             <Th>Specialization</Th>
@@ -132,11 +229,12 @@ export default function ProjectContractor() {
                         </Tr>
                     </Thead>
                     <Tbody>
-                        {contractors.length > 0 ? (
-                            contractors.map((contractor, idx) => (
+                        {filteredContractors.length > 0 ? (
+                            filteredContractors.map((contractor, idx) => (
                                 <Tr key={contractor.id} _hover={{ bg: "gray.50" }}>
                                     <Td>{idx + 1}</Td>
                                     <Td>{contractor.companyName}</Td>
+                                    <Td>{contractor.projectNames}</Td>
                                     <Td>{contractor.contactPerson}</Td>
                                     <Td>{contractor.registrationNo}</Td>
                                     <Td>{contractor.specialization || "General"}</Td>
@@ -161,7 +259,7 @@ export default function ProjectContractor() {
                             ))
                         ) : (
                             <Tr>
-                                <Td colSpan={9} textAlign="center" py={8}>
+                                <Td colSpan={10} textAlign="center" py={8}>
                                     <Text color="gray.500">No contractors found</Text>
                                 </Td>
                             </Tr>

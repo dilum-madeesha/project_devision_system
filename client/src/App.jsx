@@ -96,18 +96,40 @@ function App() {
 
 
 	const location = useLocation();
+	const normalizedPath = location.pathname.toLowerCase();
 
 	const hideNavbarRoutes = ["/systems"]; // pages where navbar should NOT show
 	const shouldShowNavbar = isAuthenticated && !hideNavbarRoutes.includes(location.pathname);
 
 	const selectedSystem = localStorage.getItem("selectedSystem");
 
+	const isProjectRoute =
+		normalizedPath.startsWith("/project") ||
+		normalizedPath.startsWith("/createproject");
+
+	const isCostRoute =
+		normalizedPath === "/dashboard" ||
+		normalizedPath.startsWith("/dashboard/") ||
+		normalizedPath === "/register" ||
+		normalizedPath.startsWith("/register/") ||
+		normalizedPath === "/addcost" ||
+		normalizedPath.startsWith("/addcost/") ||
+		normalizedPath === "/reports" ||
+		normalizedPath.startsWith("/reports/") ||
+		normalizedPath === "/about";
+
+	const navbarSystem = isProjectRoute
+		? "project"
+		: isCostRoute
+			? "cost"
+			: selectedSystem;
+
 	return (
 		<Box minH={"100vh"} bg={useColorModeValue("gray.100", "gray.900")}>
 			{/* Only show Navbar if user is authenticated */}
 
-			{shouldShowNavbar && selectedSystem === "cost" && <CostNavbar />}
-			{shouldShowNavbar && selectedSystem === "project" && <ProjectNavbar />}
+			{shouldShowNavbar && navbarSystem === "cost" && <CostNavbar />}
+			{shouldShowNavbar && navbarSystem === "project" && <ProjectNavbar />}
 
 
 			<Box pt={0}>

@@ -72,13 +72,51 @@ class OfficerService {
     return prisma.officer.findMany({
       take: limit,
       skip: offset,
+      include: {
+        projectAssignments: {
+          include: {
+            project: {
+              select: {
+                id: true,
+                projectName: true,
+                contractor: {
+                  select: {
+                    id: true,
+                    companyName: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
   }
 
   // Get officer by ID
   static async getById(id) {
-    return prisma.officer.findUnique({ where: { id: Number(id) } });
+    return prisma.officer.findUnique({
+      where: { id: Number(id) },
+      include: {
+        projectAssignments: {
+          include: {
+            project: {
+              select: {
+                id: true,
+                projectName: true,
+                contractor: {
+                  select: {
+                    id: true,
+                    companyName: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   // Delete officer

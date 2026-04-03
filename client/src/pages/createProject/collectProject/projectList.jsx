@@ -205,27 +205,20 @@ const ProjectList = () => {
                         <Text
                             as={Link}
                             to="/projects"
-                            color="orange.500"
+                            color="yellow.500"
                             
                             
                         >
                             Projects
                         </Text>
                         <Text>/</Text>
-                        <Text color="orange.500" fontWeight="bold">Project List</Text>
+                        <Text color="yellow.500" fontWeight="bold">Project List</Text>
                     </HStack>
 
                     {/* Page Header */}
                     <Flex justify="space-between" align="flex-start">
                         <Box>
-                            <Heading
-                                size="lg"
-                                color="orange.500"
-                                fontWeight="bold"
-                                letterSpacing="tight"
-                            >
-                                Project Records
-                            </Heading>
+                            
                             <Text color="gray.500" fontSize="sm" mt={1}>
                                 Manage and track all your projects
                             </Text>
@@ -233,10 +226,10 @@ const ProjectList = () => {
                         <Link to="/createproject/collectProject/new">
                             <Button
                                 leftIcon={<FiPlus />}
-                                bg="orange.400"
+                                bg="yellow.400"
                                 color="white"
-                                _hover={{ bg: "orange.500" }}
-                                _active={{ bg: "orange.600" }}
+                                _hover={{ bg: "yellow.500" }}
+                                _active={{ bg: "yellow.600" }}
                                 fontWeight="semibold"
                                 px={5}
                                 shadow="md"
@@ -255,7 +248,7 @@ const ProjectList = () => {
                             maxW="280px"
                             bg={bg}
                             borderColor={borderColor}
-                            _focus={{ borderColor: "orange.400", boxShadow: "0 0 0 1px #ED8936" }}
+                            _focus={{ borderColor: "yellow.400", boxShadow: "0 0 0 1px #ED8936" }}
                             fontSize="sm"
                         />
                         <Select
@@ -265,7 +258,7 @@ const ProjectList = () => {
                             maxW="180px"
                             bg={bg}
                             borderColor={borderColor}
-                            _focus={{ borderColor: "orange.400", boxShadow: "0 0 0 1px #ED8936" }}
+                            _focus={{ borderColor: "yellow.400", boxShadow: "0 0 0 1px #ED8936" }}
                             fontSize="sm"
                         >
                             <option value="PLANNING">Planning</option>
@@ -278,6 +271,7 @@ const ProjectList = () => {
                             variant="outline"
                             borderColor={borderColor}
                             fontSize="sm"
+                            bg="white"
                             onClick={() => { setSearchFilter(''); setStatusFilter(''); }}
                         >
                             Clear Filters
@@ -340,9 +334,9 @@ const ProjectList = () => {
                                                     </Text>
                                                     <Link to="/createproject/collectProject/new">
                                                         <Button
-                                                            bg="orange.400"
+                                                            bg="yellow.400"
                                                             color="white"
-                                                            _hover={{ bg: "orange.500" }}
+                                                            _hover={{ bg: "yellow.500" }}
                                                             size="sm"
                                                             mt={2}
                                                         >
@@ -356,7 +350,7 @@ const ProjectList = () => {
                                         paginatedProjects.map((project, idx) => (
                                             <Tr
                                                 key={project.id}
-                                                _hover={{ bg: "orange.50" }}
+                                                _hover={{ bg: "yellow.50" }}
                                                 borderBottom="1px solid"
                                                 borderColor={borderColor}
                                                 bg={idx % 2 === 0 ? "white" : "gray.50"}
@@ -384,7 +378,7 @@ const ProjectList = () => {
                                                         <Progress
                                                             value={project.completedPercent || 0}
                                                             size="sm"
-                                                            colorScheme="orange"
+                                                            colorScheme="yellow"
                                                             w="80px"
                                                             borderRadius="full"
                                                         />
@@ -445,9 +439,9 @@ const ProjectList = () => {
                             <Button
                                 size="sm"
                                 variant="outline"
-                                borderColor="orange.300"
-                                color="orange.500"
-                                _hover={{ bg: "orange.50" }}
+                                borderColor="yellow.300"
+                                color="yellow.500"
+                                _hover={{ bg: "yellow.50" }}
                                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                 isDisabled={currentPage === 1}
                             >
@@ -459,9 +453,9 @@ const ProjectList = () => {
                             <Button
                                 size="sm"
                                 variant="outline"
-                                borderColor="orange.300"
-                                color="orange.500"
-                                _hover={{ bg: "orange.50" }}
+                                borderColor="yellow.300"
+                                color="yellow.500"
+                                _hover={{ bg: "yellow.50" }}
                                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                 isDisabled={currentPage === totalPages}
                             >
@@ -477,9 +471,9 @@ const ProjectList = () => {
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader
-                        color="orange.500"
+                        color="yellow.500"
                         borderBottom="1px solid"
-                        borderColor="orange.100"
+                        borderColor="yellow.100"
                         fontWeight="bold"
                     >
                         Project Details
@@ -509,7 +503,7 @@ const ProjectList = () => {
                                             <Progress
                                                 value={selectedProject.completedPercent || 0}
                                                 size="sm"
-                                                colorScheme="orange"
+                                                colorScheme="yellow"
                                                 w="100px"
                                                 borderRadius="full"
                                             />
@@ -555,7 +549,7 @@ const ProjectList = () => {
                                     <Box>
                                         <Text fontWeight="bold" color="gray.500" fontSize="xs" textTransform="uppercase" mb={2}>Assigned Officers</Text>
                                         {selectedProject.officerAssignments.map((assignment, idx) => (
-                                            <Badge key={idx} mr={2} mb={2} colorScheme="orange" borderRadius="full" px={3}>
+                                            <Badge key={idx} mr={2} mb={2} colorScheme="yellow" borderRadius="full" px={3}>
                                                 {assignment.role}: {assignment.officer?.officerNo ? `${assignment.officer.officerNo} - ` : ""}{assignment.officer?.fullName}
                                             </Badge>
                                         ))}
@@ -568,9 +562,9 @@ const ProjectList = () => {
                         <Button
                             onClick={onClose}
                             variant="outline"
-                            borderColor="orange.300"
-                            color="orange.500"
-                            _hover={{ bg: "orange.50" }}
+                            borderColor="yellow.300"
+                            color="yellow.500"
+                            _hover={{ bg: "yellow.50" }}
                         >
                             Close
                         </Button>

@@ -9,6 +9,8 @@ const api = axios.create({
   withCredentials: true, // This enables sending cookies
   timeout: 10000, // 10 second timeout
 });
+// 'http://trainings.airport.lk:5000/api'
+
 
 // Request interceptor to add auth token
 api.interceptors.request.use(

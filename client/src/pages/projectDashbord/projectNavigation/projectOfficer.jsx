@@ -24,7 +24,11 @@ import {
   Avatar,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { Search, Users, UserCheck, Briefcase, Phone, Mail } from "lucide-react";
+import { Search, Users, UserCheck, Briefcase, Phone, Mail, } from "lucide-react";
+import { MdEngineering } from "react-icons/md";
+import { FaUserEdit } from "react-icons/fa";
+import { FaUsersCog } from "react-icons/fa";
+
 import { officerAPI } from "../../../api";
 
 export default function ProjectOfficer() {
@@ -32,6 +36,7 @@ export default function ProjectOfficer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterProject, setFilterProject] = useState("All");
   const [filterDesignation, setFilterDesignation] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
 
@@ -58,6 +63,10 @@ export default function ProjectOfficer() {
 
       // Normalize fields used across screens so dashboard renders consistently.
       const normalizedOfficers = officersList.map((officer) => ({
+        ...(officer || {}),
+        projectAssignments: Array.isArray(officer?.projectAssignments)
+          ? officer.projectAssignments
+          : [],
         ...officer,
         name:
           officer.name ||
@@ -65,6 +74,32 @@ export default function ProjectOfficer() {
           `${officer.firstName || ""} ${officer.lastName || ""}`.trim() ||
           "N/A",
         phone: officer.phone || officer.contactNumber || "",
+        projectName:
+          Array.from(
+            new Set(
+              (Array.isArray(officer?.projectAssignments)
+                ? officer.projectAssignments
+                : []
+              )
+                .map((assignment) => assignment?.project?.projectName)
+                .filter(Boolean)
+            )
+          ).join(", ") ||
+          officer.projectName ||
+          "N/A",
+        contractorName:
+          Array.from(
+            new Set(
+              (Array.isArray(officer?.projectAssignments)
+                ? officer.projectAssignments
+                : []
+              )
+                .map((assignment) => assignment?.project?.contractor?.companyName)
+                .filter(Boolean)
+            )
+          ).join(", ") ||
+          officer.contractorName ||
+          "N/A",
         status:
           typeof officer.status === "boolean"
             ? officer.status
@@ -85,25 +120,52 @@ export default function ProjectOfficer() {
   const totalOfficers = officers.length;
   const engineerCount = officers.filter(o => o.designation === "Engineer").length;
   const technicalOfficerCount = officers.filter(o => o.designation === "Technical Officer").length;
+  const qsOfficerCount = officers.filter(o => o.designation === "QS Officer").length;
   const secretaryCount = officers.filter(o => o.designation === "Secretary").length;
+
+  const projectOptions = Array.from(
+    new Set(
+      officers
+        .flatMap((officer) =>
+          (Array.isArray(officer.projectAssignments)
+            ? officer.projectAssignments
+            : []
+          )
+            .map((assignment) => assignment?.project?.projectName)
+            .filter(Boolean)
+        )
+    )
+  ).sort((a, b) => a.localeCompare(b));
 
   // Filter officers
   const filteredOfficers = officers.filter((officer) => {
     const matchesSearch =
       officer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       officer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      officer.phone?.toLowerCase().includes(searchTerm.toLowerCase());
+      officer.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.projectName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      officer.contractorName?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesProject =
+      filterProject === "All" ||
+      (Array.isArray(officer.projectAssignments)
+        ? officer.projectAssignments.some(
+            (assignment) => assignment?.project?.projectName === filterProject
+          )
+        : false) ||
+      officer.projectName === filterProject;
     const matchesDesignation =
       filterDesignation === "All" || officer.designation === filterDesignation;
     const matchesStatus =
       filterStatus === "All" || (filterStatus === "Active" ? officer.status === true : officer.status === false);
-    return matchesSearch && matchesDesignation && matchesStatus;
+    return matchesSearch && matchesProject && matchesDesignation && matchesStatus;
   });
 
   const getDesignationColor = (designation) => {
     switch (designation) {
       case "Engineer":
         return "blue";
+      case "QS Officer":
+        return "cyan";
       case "Technical Officer":
         return "green";
       case "Secretary":
@@ -118,29 +180,36 @@ export default function ProjectOfficer() {
       icon: <Users size={24} />,
       title: "Total Officers",
       value: totalOfficers,
-      color1: "#10b981",
-      color2: "#059669",
+      color1: "#6ee7b7", // emerald-300
+      color2: "#34d399", // emerald-400 
     },
     {
-      icon: <Briefcase size={24} />,
+      icon: <MdEngineering size={24} />,
       title: "Engineers",
       value: engineerCount,
-      color1: "#3b82f6",
-      color2: "#06b6d4",
+      color1: "#93c5fd", // light blue
+      color2: "#67e8f9", // light cyan
     },
     {
-      icon: <UserCheck size={24} />,
+      icon: <FaUsersCog size={24} />,
       title: "Technical Officers",
       value: technicalOfficerCount,
-      color1: "#a855f7",
-      color2: "#ec4899",
+      color1: "#d8b4fe", // violet-300
+      color2: "#f9a8d4", // pink-300
     },
     {
       icon: <UserCheck size={24} />,
+      title: "QS Officers",
+      value: qsOfficerCount,
+      color1: "#86efac", // green-300
+      color2: "#22c55e", // green-500
+    },
+    {
+      icon: <FaUserEdit size={24} />,
       title: "Secretaries",
       value: secretaryCount,
-      color1: "#f97316",
-      color2: "#fbbf24",
+      color1: "#fdba74", // orange-300
+      color2: "#fde68a", // yellow-200
     },
   ];
 
@@ -175,7 +244,7 @@ export default function ProjectOfficer() {
 
       {/* Statistics Cards */}
       <Grid
-        templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }}
+        templateColumns={{ base: "1fr", md: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" }}
         gap={4}
         mb={6}
       >
@@ -230,6 +299,20 @@ export default function ProjectOfficer() {
             />
           </InputGroup>
           <Select
+            id="projectOfficerProjectFilter"
+            name="projectOfficerProjectFilter"
+            maxW="240px"
+            value={filterProject}
+            onChange={(e) => setFilterProject(e.target.value)}
+          >
+            <option value="All">All Projects</option>
+            {projectOptions.map((projectName) => (
+              <option key={projectName} value={projectName}>
+                {projectName}
+              </option>
+            ))}
+          </Select>
+          <Select
             id="projectOfficerDesignationFilter"
             name="projectOfficerDesignationFilter"
             maxW="200px"
@@ -238,6 +321,7 @@ export default function ProjectOfficer() {
           >
             <option value="All">All Designations</option>
             <option value="Engineer">Engineer</option>
+            <option value="QS Officer">QS Officer</option>
             <option value="Technical Officer">Technical Officer</option>
             <option value="Secretary">Secretary</option>
           </Select>
@@ -263,6 +347,8 @@ export default function ProjectOfficer() {
               <Tr>
                 <Th>Officer Name</Th>
                 <Th>Designation</Th>
+                <Th>Project Name</Th>
+                <Th>Contractor Name</Th>
                 <Th>Email</Th>
                 <Th>Contact No</Th>
                 <Th>Status</Th>
@@ -286,6 +372,16 @@ export default function ProjectOfficer() {
                       <Badge colorScheme={getDesignationColor(officer.designation)}>
                         {officer.designation}
                       </Badge>
+                    </Td>
+
+                    {/* Project Name */}
+                    <Td>
+                      <Text>{officer.projectName || "N/A"}</Text>
+                    </Td>
+
+                    {/* Contractor Name */}
+                    <Td>
+                      <Text>{officer.contractorName || "N/A"}</Text>
                     </Td>
 
                     {/* Email */}
@@ -315,7 +411,7 @@ export default function ProjectOfficer() {
                 ))
               ) : (
                 <Tr>
-                  <Td colSpan={5} textAlign="center" py={8}>
+                  <Td colSpan={7} textAlign="center" py={8}>
                     <Text color="gray.500">No officers found</Text>
                   </Td>
                 </Tr>

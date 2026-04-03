@@ -247,7 +247,7 @@ export default function Projectsum() {
                   <tr key={project.id || idx} style={{ borderBottom: "1px solid #f7fafc" }}>
 
                     <td style={{ padding: "8px 16px", fontSize: "14px", fontWeight: "500" }}>
-                      #{project.projectId || project.id}
+                      {project.projectId || project.id}
                     </td>
 
                     <td style={{ padding: "8px 16px", fontSize: "14px", color: "#4a5568" }}>

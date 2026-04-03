@@ -18,7 +18,7 @@ import { DisabledAction } from '../../components/PermissionGuard';
 
 const CreateProject = () => {
   const bg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const borderColor = useColorModeValue("yellow.300", "yellow.700");
   const { user, canAccessAddCost, can, FEATURES } = useAuth();
 
   const costOptions = [
@@ -27,17 +27,10 @@ const CreateProject = () => {
       description: "Manage daily Project manager and work records",
       icon: FiUsers,
       path: "/createproject/collectProject/list",
-      color: "orange",
+      color: "yellow",
       costType: "labor"
     }
-    // {
-    //   title: "Add Material Cost",
-    //   description: "Manage material orders and procurement costs",
-    //   icon: FiPackage,
-    //   path: "/addcost/material",
-    //   color: "orange",
-    //   costType: "material"
-    // }
+
   ];
 
   return (

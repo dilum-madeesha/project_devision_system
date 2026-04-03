@@ -21,7 +21,7 @@ export default function ProjectDashbord() {
   const activePage = getActivePageFromRoute(location.pathname);
 
   return (
-    <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={1}>
+    <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={4}>
       {/* Flex container: Sidebar + Main */}
 
       <Flex

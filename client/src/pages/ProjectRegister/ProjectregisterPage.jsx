@@ -80,9 +80,9 @@ const RegisterPage = () => {
                   <Box key={index}>
                     <Link to={option.path}>
                       <Box
-                        bg={`${option.color}.50`}
+                        bg={`${option.color}.100`}
                         borderWidth="1px"
-                        borderColor={`${option.color}.100`}
+                        borderColor={`${option.color}.300`}
                         borderRadius="lg"
                         p={6}
                         textAlign="center"
@@ -95,7 +95,7 @@ const RegisterPage = () => {
                         _hover={{
                           transform: "translateY(-4px)",
                           shadow: "lg",
-                          bg: `${option.color}.100`,
+                          bg: `${option.color}.200`,
                           borderColor: `${option.color}.500`,
                         }}
                       >

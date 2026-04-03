@@ -166,7 +166,7 @@ export default function ProjectReports() {
       ["Start Date", project.startDate ? new Date(project.startDate).toLocaleDateString() : "N/A"],
       ["End Date", project.endDate ? new Date(project.endDate).toLocaleDateString() : "N/A"],
       ["Completion", `${project.completedPercent || 0}%`],
-      ["Agreement", project.agreement?.agreementNo || "N/A"],
+      ["Agreement", project.agreement?.agreementID || "N/A"],
       ["Contractor", project.contractor?.companyName || "N/A"],
     ];
 
@@ -176,6 +176,33 @@ export default function ProjectReports() {
       body: info,
       theme: "striped",
       headStyles: { fillColor: [66, 139, 202] },
+    });
+
+    // Agreement section
+    doc.setFontSize(14);
+    doc.text("Agreement Details", 14, doc.lastAutoTable.finalY + 15);
+
+    const agreement = project.agreement;
+    const agreementData = agreement
+      ? [[
+        agreement.agreementID || "N/A",
+        agreement.agreementSum != null
+          ? `Rs.${Number(agreement.agreementSum).toLocaleString()}`
+          : "N/A",
+        agreement.vat != null ? `${agreement.vat}%` : "N/A",
+        agreement.periodDays != null ? String(agreement.periodDays) : "N/A",
+        agreement.startDate ? new Date(agreement.startDate).toLocaleDateString() : "N/A",
+        agreement.status || "N/A",
+      ]]
+      : [["N/A", "N/A", "N/A", "N/A", "N/A", "N/A"]];
+
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 20,
+      head: [["Agreement ID", "Sum", "VAT", "Period", "Start Date", "Status"]],
+      body: agreementData,
+      theme: "striped",
+      headStyles: { fillColor: [92, 184, 92] },
+      styles: { fontSize: 9 },
     });
 
     // Officers section
@@ -451,35 +478,39 @@ export default function ProjectReports() {
         </Alert>
       )}
 
-      <Tabs variant="enclosed" colorScheme="blue" bg="gray.50" borderRadius="xl" p={6}>
+      <Tabs variant="enclosed" colorScheme="blue" bg="gray.50" borderRadius="lg" p={6}>
         <TabList >
           <Tab
-            _selected={{ bg: "purple.500", color: "white", borderColor: "purple.500" }}
-            _hover={{ bg: "purple.50" }}
+            bg="yellow.100"
+            _selected={{ bg: "yellow.400", color: "white", borderColor: "yellow.200" }}
+            _hover={{ bg: "yellow.400" }}
             fontWeight="600"
           >
             <FiClipboard style={{ marginRight: 8 }} /> Projects
           </Tab>
 
           <Tab
-            _selected={{ bg: "pink.500", color: "white", borderColor: "pink.500" }}
-            _hover={{ bg: "pink.50" }}
+            bg="blue.100"
+            _selected={{ bg: "blue.400", color: "white", borderColor: "blue.200" }}
+            _hover={{ bg: "blue.500" }}
             fontWeight="600"
           >
             <FiUsers style={{ marginRight: 8 }} /> Officers
           </Tab>
 
           <Tab
-            _selected={{ bg: "green.500", color: "white", borderColor: "green.500" }}
-            _hover={{ bg: "green.50" }}
+            bg="green.100"
+            _selected={{ bg: "green.400", color: "white", borderColor: "green.200" }}
+            _hover={{ bg: "green.500" }}
             fontWeight="600"
           >
             <FiFileText style={{ marginRight: 8 }} /> Agreements
           </Tab>
 
           <Tab
-            _selected={{ bg: "orange.500", color: "white", borderColor: "orange.500" }}
-            _hover={{ bg: "orange.50" }}
+            bg="purple.100"
+            _selected={{ bg: "purple.400", color: "white", borderColor: "purple.200" }}
+            _hover={{ bg: "purple.500" }}
             fontWeight="600"
           >
             <FiBriefcase style={{ marginRight: 8 }} /> Contractors
@@ -495,6 +526,7 @@ export default function ProjectReports() {
                 name="projectViewerSearch"
                 placeholder="Search by project ID or name..."
                 value={search}
+                bg="white"
                 onChange={(e) => setSearch(e.target.value)}
                 maxW="300px"
               />
@@ -502,6 +534,7 @@ export default function ProjectReports() {
                 id="projectViewerStatusFilter"
                 name="projectViewerStatusFilter"
                 placeholder="All Status"
+                bg="white"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 maxW="200px"
@@ -512,7 +545,7 @@ export default function ProjectReports() {
                 <option value="COMPLETED">Completed</option>
                 <option value="CANCELLED">Cancelled</option>
               </Select>
-              <Text color="gray.500" fontSize="sm">
+              <Text color="gray.800" fontSize="sm">
                 {filteredProjects.length} projects found
               </Text>
             </HStack>
@@ -524,6 +557,8 @@ export default function ProjectReports() {
                     <Tr>
                       <Th>Project ID</Th>
                       <Th>Project Name</Th>
+                      <Th>Agreement No</Th>
+                      <Th>Agreement Sum</Th>
                       <Th>Status</Th>
                       <Th>Start Date</Th>
                       <Th>End Date</Th>
@@ -536,6 +571,13 @@ export default function ProjectReports() {
                       <Tr key={p.id}>
                         <Td fontWeight="medium">{p.projectId}</Td>
                         <Td>{p.projectName}</Td>
+                        <Td>{p.agreement?.agreementID || "N/A"}</Td>
+                        <Td>
+                          {p.agreement?.agreementSum != null
+                            ? `Rs.${Number(p.agreement.agreementSum).toLocaleString()}`
+                            : "N/A"}
+                        </Td>
+                        
                         <Td>
                           <Badge colorScheme={getStatusColor(p.status)}>{p.status}</Badge>
                         </Td>
@@ -571,7 +613,9 @@ export default function ProjectReports() {
           {/* ========== OFFICERS TAB ========== */}
           <TabPanel>
             <HStack mb={4} justify="space-between">
-              <Text fontWeight="medium">Total Officers: {officers.length}</Text>
+              <Text fontWeight="medium" color="gray.500">
+                Total Officers: {officers.length}
+              </Text>
               <HStack>
                 <Button colorScheme="blue" leftIcon={<FiFileText />} onClick={() => handleOpenReport("officers")}>
                   Open Report
@@ -623,7 +667,9 @@ export default function ProjectReports() {
           {/* ========== AGREEMENTS TAB ========== */}
           <TabPanel>
             <HStack mb={4} justify="space-between">
-              <Text fontWeight="medium">Total Agreements: {agreements.length}</Text>
+              <Text fontWeight="medium" color="gray.500">
+                Total Agreements: {agreements.length}
+              </Text>
               <HStack>
                 <Button colorScheme="blue" leftIcon={<FiFileText />} onClick={() => handleOpenReport("agreements")}>
                   Open Report
@@ -641,11 +687,9 @@ export default function ProjectReports() {
                     <Tr>
                       <Th>No</Th>
                       <Th>Agreement No</Th>
-                      <Th>Project Name</Th>
                       <Th>Agreement Sum</Th>
                       <Th>Period (Days)</Th>
                       <Th>Start Date</Th>
-                      <Th>End Date</Th>
                       <Th>Status</Th>
                     </Tr>
                   </Thead>
@@ -653,12 +697,10 @@ export default function ProjectReports() {
                     {agreements.map((a, i) => (
                       <Tr key={a.id}>
                         <Td>{i + 1}</Td>
-                        <Td fontWeight="medium">{a.agreementNo}</Td>
-                        <Td>{a.projectName}</Td>
+                        <Td fontWeight="medium">{a.agreementID}</Td>
                         <Td>Rs.{a.agreementSum?.toLocaleString()}</Td>
                         <Td>{a.periodDays}</Td>
                         <Td>{a.startDate ? new Date(a.startDate).toLocaleDateString() : "N/A"}</Td>
-                        <Td>{a.completionDate ? new Date(a.completionDate).toLocaleDateString() : "N/A"}</Td>
                         <Td>
                           <Badge colorScheme={a.status === "ACTIVE" ? "green" : a.status === "PENDING" ? "yellow" : "red"}>
                             {a.status}
@@ -675,7 +717,7 @@ export default function ProjectReports() {
           {/* ========== CONTRACTORS TAB ========== */}
           <TabPanel>
             <HStack mb={4} justify="space-between">
-              <Text fontWeight="medium">Total Contractors: {contractors.length}</Text>
+              <Text fontWeight="medium" color="gray.500">Total Contractors: {contractors.length}</Text>
               <HStack>
                 <Button colorScheme="blue" leftIcon={<FiFileText />} onClick={() => handleOpenReport("contractors")}>
                   Open Report
@@ -779,7 +821,7 @@ export default function ProjectReports() {
                 {selectedProject.agreement && (
                   <Box>
                     <Text fontWeight="bold" mb={2}>Agreement</Text>
-                    <Text>No: {selectedProject.agreement.agreementNo}</Text>
+                    <Text>ID: {selectedProject.agreement.agreementID}</Text>
                     <Text>Sum: Rs.{selectedProject.agreement.agreementSum?.toLocaleString()}</Text>
                   </Box>
                 )}

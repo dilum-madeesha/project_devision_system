@@ -51,13 +51,31 @@ class ContractorService {
     return prisma.contractor.findMany({
       take: limit,
       skip: offset,
+      include: {
+        projects: {
+          select: {
+            id: true,
+            projectName: true
+          }
+        }
+      },
       orderBy: { createdAt: 'desc' }
     });
   }
 
   // Get contractor by ID
   static async getById(id) {
-    return prisma.contractor.findUnique({ where: { id: Number(id) } });
+    return prisma.contractor.findUnique({
+      where: { id: Number(id) },
+      include: {
+        projects: {
+          select: {
+            id: true,
+            projectName: true
+          }
+        }
+      }
+    });
   }
 
   // Delete contractor

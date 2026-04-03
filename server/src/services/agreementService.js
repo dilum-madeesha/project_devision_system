@@ -5,29 +5,16 @@ class AgreementService {
   static async register(data) {
     // Transform data
     const transformedData = {
-      agreementNo: data.agreementNo,
       agreementID: data.agreementID || null,
-      projectName: data.projectName,
       agreementSum: parseFloat(data.agreementSum) || 0,
       vat: data.vat ? parseFloat(data.vat) : 0,
       periodDays: data.periodDays ? parseInt(data.periodDays) : null,
       awardDate: data.awardDate ? new Date(data.awardDate) : null,
       startDate: data.startDate ? new Date(data.startDate) : null,
-      completionDate: data.completionDate ? new Date(data.completionDate) : null,
       status: data.status || 'ACTIVE',
       description: data.description || null,
       createdById: data.createdById || null,
     };
-
-    // Check for unique agreement number
-    if (transformedData.agreementNo) {
-      const exists = await prisma.agreement.findUnique({
-        where: { agreementNo: transformedData.agreementNo }
-      });
-      if (exists) {
-        throw new Error('Agreement Number already exists');
-      }
-    }
 
     // Check for unique agreement ID if provided
     if (transformedData.agreementID) {
@@ -54,31 +41,15 @@ class AgreementService {
 
     // Transform data
     const transformedData = {
-      ...(data.agreementNo && { agreementNo: data.agreementNo }),
       ...(data.agreementID && { agreementID: data.agreementID }),
-      ...(data.projectName && { projectName: data.projectName }),
       ...(data.agreementSum !== undefined && { agreementSum: parseFloat(data.agreementSum) || 0 }),
       ...(data.vat !== undefined && { vat: parseFloat(data.vat) || 0 }),
       ...(data.periodDays !== undefined && { periodDays: data.periodDays ? parseInt(data.periodDays) : null }),
       ...(data.awardDate && { awardDate: new Date(data.awardDate) }),
       ...(data.startDate && { startDate: new Date(data.startDate) }),
-      ...(data.completionDate && { completionDate: new Date(data.completionDate) }),
       ...(data.status && { status: data.status }),
       ...(data.description !== undefined && { description: data.description || null }),
     };
-
-    // Check for unique agreement number if changed
-    if (transformedData.agreementNo && transformedData.agreementNo !== existingAgreement.agreementNo) {
-      const exists = await prisma.agreement.findFirst({
-        where: { 
-          agreementNo: transformedData.agreementNo,
-          NOT: { id: Number(id) }
-        }
-      });
-      if (exists) {
-        throw new Error('Agreement Number already exists');
-      }
-    }
 
     // Check for unique agreement ID if changed
     if (transformedData.agreementID && transformedData.agreementID !== existingAgreement.agreementID) {
@@ -137,7 +108,7 @@ class AgreementService {
     if (linkedProjects.length > 0) {
       const projectNames = linkedProjects.map(p => p.projectName).join(', ');
       throw new Error(
-        `Cannot delete agreement "${existingAgreement.agreementNo}" because it is linked to the following project(s): ${projectNames}. Please remove or reassign these projects first.`
+        `Cannot delete agreement "${existingAgreement.agreementID || existingAgreement.id}" because it is linked to the following project(s): ${projectNames}. Please remove or reassign these projects first.`
       );
     }
 

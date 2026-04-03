@@ -203,7 +203,7 @@ export default function Projectsummery() {
         <Box p={6} bg="gray.50" minH="100vh" overflowY="auto">
             {/* Header */}
             <Box mb={6}>
-                <Heading size="lg" mb={2}>Project Summary Dashboard</Heading>
+                <Heading size="lg" mb={2}>Project Dashboard</Heading>
                 <Text color="gray.600">Welcome back, {user?.firstName || "User"}! Here's your project overview.</Text>
             </Box>
 

@@ -75,7 +75,19 @@ const recordsPerPage = 8;
 
     const toast = useToast();
     const { user } = useAuth();
+
+    
     const canEdit = user?.role === "ADMIN" || user?.role === "MANAGER";
+
+    // Keep earliest records first so newly added officers appear at the end.
+    const sortOfficersEarliestFirst = (data = []) => {
+        return [...data].sort((a, b) => {
+            const aTime = new Date(a?.createdAt || 0).getTime() || 0;
+            const bTime = new Date(b?.createdAt || 0).getTime() || 0;
+            if (aTime !== bTime) return aTime - bTime;
+            return (a?.id || 0) - (b?.id || 0);
+        });
+    };
 
     useEffect(() => {
         fetchOfficers();
@@ -102,12 +114,14 @@ const recordsPerPage = 8;
                 data = res.officers;
             }
 
-            setAllOfficers(data);
-            setFilteredOfficers(data);
-            const newTotalPages = Math.ceil(data.length / recordsPerPage) || 1;
+            const sortedData = sortOfficersEarliestFirst(data);
+
+            setAllOfficers(sortedData);
+            setFilteredOfficers(sortedData);
+            const newTotalPages = Math.ceil(sortedData.length / recordsPerPage) || 1;
             setTotalPages(newTotalPages);
             setCurrentPage(1);
-            setOfficers(data.slice(0, recordsPerPage));
+            setOfficers(sortedData.slice(0, recordsPerPage));
         } catch (err) {
             setError("Failed to fetch officers");
             setOfficers([]);
@@ -146,6 +160,8 @@ const recordsPerPage = 8;
                 return statusValue === active;
             });
         }
+
+        filtered = sortOfficersEarliestFirst(filtered);
 
         setFilteredOfficers(filtered);
 
@@ -230,7 +246,7 @@ const recordsPerPage = 8;
         <Container maxW="1300px" py={4}>
             <VStack align="stretch" spacing={4}>
                 {/* Breadcrumb */}
-                <Breadcrumb fontSize="sm" color="gray.600">
+                <Breadcrumb fontSize="sm" color="gray.600 ">
                     <BreadcrumbItem>
                         <BreadcrumbLink as={Link} to="/projectRegister" color="blue.500">
                             Register
@@ -278,6 +294,7 @@ const recordsPerPage = 8;
                             name="officerListSearch"
                             size="sm"
                             width="260px"
+                            bg="white"
                             placeholder="Search EPF, name, email, division..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -286,6 +303,7 @@ const recordsPerPage = 8;
                             id="officerListStatusFilter"
                             name="officerListStatusFilter"
                             size="sm"
+                            bg="white"
                             width="140px"
                             placeholder="All Status"
                             value={statusFilter}
@@ -337,7 +355,7 @@ const recordsPerPage = 8;
                                 {canEdit && <Th>Actions</Th>}
                             </Tr>
                         </Thead>
-                        <Tbody>
+                        <Tbody bg="white">
                             {officers.map((o, index) => (
                                 <Tr key={o.id}>
                                     <Td>
@@ -513,6 +531,7 @@ const recordsPerPage = 8;
                                     >
                                         <option value="">Select designation</option>
                                         <option value="Engineer">Engineer</option>
+                                        <option value="QS Officer">QS Officer</option>
                                         <option value="Technical Officer">Technical Officer</option>
                                         <option value="Secretary">Secretary</option>
                                     </Select>

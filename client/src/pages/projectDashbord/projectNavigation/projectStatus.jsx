@@ -163,7 +163,7 @@ export default function ProjectStatus() {
     <Box p={6} overflow="auto" bg="gray.50">
       {/* Header */}
       <Box mb={8}>
-        <Heading size="lg">Project Status Report</Heading>
+        <Heading size="lg">Project Status</Heading>
         <Text mt={2} color="gray.600">
           Projects that need your immediate focus and action.
         </Text>

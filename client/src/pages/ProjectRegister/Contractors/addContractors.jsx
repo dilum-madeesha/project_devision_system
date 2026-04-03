@@ -98,9 +98,7 @@ export default function AddContractor() {
         description: "",
       });
 
-      setTimeout(() => {
-        navigate("/projectregister/contractors");
-      }, 1500);
+      navigate("/projectregister/contractors");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add contractor");
     } finally {

@@ -249,7 +249,7 @@ const ProjectNavbar = () => {
                 colorScheme={isActiveRoute('/CreateProject') ? "blue" : "gray"}
                 size="sm"
               >
-                Add Cost
+                Project
               </Button>
             </Link>
           </HStack>

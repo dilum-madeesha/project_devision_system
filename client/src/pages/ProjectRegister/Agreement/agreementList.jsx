@@ -56,15 +56,12 @@ const AgreementList = () => {
 
     const [editingAgreement, setEditingAgreement] = useState(null);
     const [editFormData, setEditFormData] = useState({
-        agreementNo: "",
         agreementID: "",
-        projectName: "",
         agreementSum: 0,
         vat: 0,
         periodDays: 0,
         awardDate: "",
         startDate: "",
-        completionDate: "",
         status: "ACTIVE"
     });
     const [editLoading, setEditLoading] = useState(false);
@@ -106,13 +103,10 @@ const AgreementList = () => {
         if (searchTerm) {
             const term = searchTerm.toLowerCase();
             filtered = filtered.filter((agreement) => {
-                const agreementNo = (agreement.agreementNo || "")
+                const agreementID = (agreement.agreementID || "")
                     .toString()
                     .toLowerCase();
-                const projectName = (agreement.projectName || "").toLowerCase();
-                return (
-                    agreementNo.includes(term) || projectName.includes(term)
-                );
+                return agreementID.includes(term);
             });
         }
 
@@ -192,9 +186,7 @@ const AgreementList = () => {
     const handleEditAgreement = (agreement) => {
         setEditingAgreement(agreement);
         setEditFormData({
-            agreementNo: agreement.agreementNo || "",
             agreementID: agreement.agreementID || "",
-            projectName: agreement.projectName || "",
             agreementSum: agreement.agreementSum || 0,
             vat: agreement.vat || 0,
             periodDays: agreement.periodDays || 0,
@@ -202,9 +194,6 @@ const AgreementList = () => {
                 ? agreement.awardDate.split("T")[0]
                 : "",
             startDate: agreement.startDate ? agreement.startDate.split("T")[0] : "",
-            completionDate: agreement.completionDate
-                ? agreement.completionDate.split("T")[0]
-                : "",
             status: agreement.status || "ACTIVE"
         });
     };
@@ -215,15 +204,12 @@ const AgreementList = () => {
         setEditLoading(true);
         try {
             const updateData = {
-                agreementNo: editFormData.agreementNo,
                 agreementID: editFormData.agreementID,
-                projectName: editFormData.projectName,
                 agreementSum: editFormData.agreementSum ? parseFloat(editFormData.agreementSum) : 0,
                 vat: editFormData.vat ? parseFloat(editFormData.vat) : 0,
                 periodDays: editFormData.periodDays ? parseInt(editFormData.periodDays) : null,
                 awardDate: editFormData.awardDate || null,
                 startDate: editFormData.startDate || null,
-                completionDate: editFormData.completionDate || null,
                 status: editFormData.status,
                 description: editFormData.description || null,
             };
@@ -255,10 +241,10 @@ const AgreementList = () => {
     }
 
     return (
-        <Container maxW="1300px" py={0.1}>
-            <VStack spacing={2} align="stretch">
+        <Container maxW="1300px" py={4}>
+            <VStack spacing={4} align="stretch">
                 {/* Breadcrumb */}
-                <Breadcrumb fontSize="sm" color="gray.600" mb={0.1} py={0.2}>
+                <Breadcrumb fontSize="sm" color="gray.600" >
                     <BreadcrumbItem>
                         <BreadcrumbLink as={Link} to="/projectregister" color="green.500">
                             Register
@@ -277,7 +263,9 @@ const AgreementList = () => {
 
                 <HStack justify="space-between">
 
-                    <Text color="gray.500" fontSize="x-large" > project agreement List</Text>
+                    <Text color="gray.600">
+                        Manage project Agreements and their details
+                    </Text>
                     <Link to="/projectregister/agreements/add">
                         <Button leftIcon={<FiPlus />} colorScheme="green">
                             Add New Agreement
@@ -285,23 +273,6 @@ const AgreementList = () => {
                     </Link>
                 </HStack>
 
-                {/* {error && (
-          <Box
-            p={4}
-            borderWidth="1px"
-            borderColor="red.300"
-            bg="red.50"
-            borderRadius="md"
-          >
-            <Text color="red.700" fontWeight="bold">
-              Error Loading Agreements
-            </Text>
-            <Text>{error}</Text>
-            <Button mt={2} size="sm" onClick={fetchAgreements}>
-              Try Again
-            </Button>
-          </Box>
-        )} */}
                 {error && (
                     <Alert status="error">
                         <AlertIcon />
@@ -323,7 +294,8 @@ const AgreementList = () => {
                                 name="agreementListSearch"
                                 size="sm"
                                 width="260px"
-                                placeholder="Search agreement ID, project name..."
+                                bg="white"
+                                placeholder="Search agreement ID..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -331,6 +303,7 @@ const AgreementList = () => {
                                 id="agreementListStatusFilter"
                                 name="agreementListStatusFilter"
                                 size="sm"
+                                bg="white"
                                 width="140px"
                                 placeholder="All Status"
                                 value={statusFilter}
@@ -387,14 +360,12 @@ const AgreementList = () => {
                             <Thead bg="green.50">
                                 <Tr>
                                     <Th>No</Th>
-                                    <Th>Agreement No</Th>
-                                    <Th>Project Name</Th>
+                                    <Th>Agreement ID</Th>
                                     <Th>Agreement Sum</Th>
                                     <Th>VAT</Th>
                                     <Th>Period (days)</Th>
                                     <Th>Award Date</Th>
                                     <Th>Start Date</Th>
-                                    <Th>Completion Date</Th>
                                     {statusFilter !== "" || true ? <Th>Status</Th> : null}
                                     {canEdit && <Th>Actions</Th>}
                                 </Tr>
@@ -405,8 +376,7 @@ const AgreementList = () => {
                                         <Td>
                                             {(currentPage - 1) * recordsPerPage + index + 1}
                                         </Td>
-                                        <Td>{c.agreementNo || "N/A"}</Td>
-                                        <Td>{c.projectName || "N/A"}</Td>
+                                        <Td>{c.agreementID || "N/A"}</Td>
                                         <Td>
                                             {c.agreementSum
                                                 ? formatCurrency(c.agreementSum)
@@ -427,13 +397,6 @@ const AgreementList = () => {
                                             {c.startDate
                                                 ? new Date(
                                                     c.startDate
-                                                ).toLocaleDateString()
-                                                : "N/A"}
-                                        </Td>
-                                        <Td>
-                                            {c.completionDate
-                                                ? new Date(
-                                                    c.completionDate
                                                 ).toLocaleDateString()
                                                 : "N/A"}
                                         </Td>
@@ -546,21 +509,6 @@ const AgreementList = () => {
                         <ModalBody>
                             <VStack spacing={4}>
                                 <FormControl isRequired>
-                                    <FormLabel>Agreement No</FormLabel>
-                                    <Input
-                                        type="text"
-                                        value={editFormData.agreementNo}
-                                        onChange={(e) =>
-                                            setEditFormData((p) => ({
-                                                ...p,
-                                                agreementNo: e.target.value,
-                                            }))
-                                        }
-                                        placeholder="Enter agreement number"
-                                    />
-                                </FormControl>
-
-                                <FormControl isRequired>
                                     <FormLabel>Agreement ID</FormLabel>
                                     <Input
                                         type="text"
@@ -572,21 +520,6 @@ const AgreementList = () => {
                                             }))
                                         }
                                         placeholder="Enter agreement ID"
-                                    />
-                                </FormControl>
-
-                                <FormControl isRequired>
-                                    <FormLabel>Project Name</FormLabel>
-                                    <Input
-                                        type="text"
-                                        value={editFormData.projectName}
-                                        onChange={(e) =>
-                                            setEditFormData((p) => ({
-                                                ...p,
-                                                projectName: e.target.value,
-                                            }))
-                                        }
-                                        placeholder="Enter project name"
                                     />
                                 </FormControl>
 
@@ -662,20 +595,6 @@ const AgreementList = () => {
                                             setEditFormData((p) => ({
                                                 ...p,
                                                 startDate: e.target.value,
-                                            }))
-                                        }
-                                    />
-                                </FormControl>
-
-                                <FormControl>
-                                    <FormLabel>Completion Date</FormLabel>
-                                    <Input
-                                        type="date"
-                                        value={editFormData.completionDate}
-                                        onChange={(e) =>
-                                            setEditFormData((p) => ({
-                                                ...p,
-                                                completionDate: e.target.value,
                                             }))
                                         }
                                     />

@@ -42,7 +42,7 @@ const ReportsLayout = () => {
       requiredFeatures={[FEATURES.REPORTS_ACCESS]}
       fallbackMessage="You don't have permission to access the reports section."
     >
-      <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={1}>
+      <Box w="100%" h="100vh" overflow="hidden" px={{ base: 2, md: 4, lg: 6 }} py={4}>
         <Flex 
           direction={{ base: "column", lg: "row" }}
           gap={{ base: 4, md: 6, lg: 4 }}
